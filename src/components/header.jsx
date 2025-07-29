@@ -3,8 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Search } from "lucide-react";
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
 
 const Header = () => {
+    const navigate = useNavigate();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -67,7 +69,7 @@ const Header = () => {
     return (
         <header className="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-xl">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <div className="text-2xl font-bold">BSquare SuperMart</div>
+                <div className="text-2xl font-bold" onClick={() => navigate(`/`)}>BSquare SuperMart</div>
                 <div className="flex items-center gap-4">
                     <Search
                         className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
