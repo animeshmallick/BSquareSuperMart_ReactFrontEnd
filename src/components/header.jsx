@@ -1,0 +1,198 @@
+// src/components/Header.jsx
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, User, Search } from "lucide-react";
+import axios from "axios";
+
+const Header = () => {
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [products, setProducts] = useState([]);
+    const [filtered, setFiltered] = useState([]);
+    const drawerRef = useRef(null);
+    const searchRef = useRef(null);
+
+    useEffect(() => {
+        if (searchTerm.length >= 2) {
+            if(products.length === 0) {
+                axios.get("https://qa.api.bsquaresupermart.in/getAllProducts")
+                    .then(res => {
+                        setProducts(res.data);
+                        setFiltered(
+                            res.data.filter(p =>
+                                p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                        );
+                    })
+                    .catch(err => console.error("Search API error:", err));
+            }else{
+                setFiltered(
+                    products.filter(p =>
+                        p.name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                );
+
+            }
+        } else {
+            setFiltered([]);
+        }
+    }, [searchTerm]);
+
+    useEffect(() => {
+        const handleClickOutside = e => {
+            if (drawerRef.current && !drawerRef.current.contains(e.target)) {
+                setDrawerOpen(false);
+            }
+            if (searchRef.current && !searchRef.current.contains(e.target)) {
+                setSearchOpen(false);
+            }
+        };
+        if (drawerOpen || searchOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+            document.addEventListener("touchstart", handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [drawerOpen, searchOpen]);
+
+    const closeButtonVariants = {
+        initial: { rotate: 0, scale: 0.8, opacity: 0 },
+        animate: { rotate: 180, scale: 1, opacity: 1 },
+        exit: { rotate: -90, scale: 0.8, opacity: 0 },
+    };
+
+    return (
+        <header className="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-xl">
+            <div className="max-w-7xl mx-auto flex justify-between items-center">
+                <div className="text-2xl font-bold">BSquare SuperMart</div>
+                <div className="flex items-center gap-4">
+                    <Search
+                        className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
+                        onClick={() => setSearchOpen(true)}
+                    />
+                    <User className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+                    <Menu
+                        className="w-7 h-7 cursor-pointer md:hidden"
+                        onClick={() => setDrawerOpen(true)}
+                    />
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {searchOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex justify-center items-start pt-20 px-4"
+                    >
+                        <motion.div
+                            ref={searchRef}
+                            initial={{ y: -50, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: -50, opacity: 0 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-4 relative"
+                        >
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                placeholder="Search for products..."
+                                className="w-full p-3 text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                            />
+                            <div className="mt-4 max-h-80 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-emerald-400">
+                                {filtered.length > 0 ? (
+                                    filtered.map((p, i) => (
+                                        <motion.div
+                                            key={p.id}
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.02 * i }}
+                                            className="flex items-center gap-4 bg-gray-100 hover:bg-emerald-100 rounded-xl p-3 cursor-pointer shadow-sm transition-all duration-200"
+                                        >
+                                            <img
+                                                src={p.image_url}
+                                                alt={p.name}
+                                                className="h-12 w-12 object-cover rounded-lg shadow-md"
+                                            />
+                                            <div>
+                                                <div className="font-semibold text-gray-800">{p.name}</div>
+                                                <div className="text-sm text-gray-600">₹{p.selling_price}</div>
+                                            </div>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-gray-500">Type at least 2 characters to search</p>
+                                )}
+                            </div>
+                            <motion.div
+                                variants={closeButtonVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.4 }}
+                                className="absolute top-4 right-4"
+                            >
+                                <X
+                                    className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800 transition-all transform hover:scale-125 hover:rotate-90"
+                                    onClick={() => setSearchOpen(false)}
+                                />
+                            </motion.div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {drawerOpen && (
+                    <motion.div
+                        className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-40 flex"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: 0 }}
+                        exit={{ x: "-100%" }}
+                    >
+                        <motion.div
+                            ref={drawerRef}
+                            initial={{ x: -250 }}
+                            animate={{ x: 0 }}
+                            exit={{ x: -250 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="w-64 bg-gradient-to-b from-white via-emerald-50 to-white p-6 rounded-tr-3xl rounded-br-3xl shadow-xl relative"
+                        >
+                            <motion.div
+                                variants={closeButtonVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.4 }}
+                                className="absolute top-4 right-4"
+                            >
+                                <X
+                                    className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800 transition-all transform hover:scale-125 hover:rotate-90"
+                                    onClick={() => setDrawerOpen(false)}
+                                />
+                            </motion.div>
+                            <nav className="mt-10 space-y-4">
+                                {['Home', 'Cart', 'About Us'].map((item, i) => (
+                                    <motion.div
+                                        key={item}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.05 * i }}
+                                        className="text-lg text-gray-800 hover:text-emerald-600 cursor-pointer transition-colors"
+                                    >
+                                        {item}
+                                    </motion.div>
+                                ))}
+                            </nav>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </header>
+    );
+};
+
+export default Header;

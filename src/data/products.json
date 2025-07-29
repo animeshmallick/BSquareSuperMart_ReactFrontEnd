@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Organic Milk",
+    "price": 54.99,
+    "image": "https://via.placeholder.com/150"
+  },
+  {
+    "id": 2,
+    "name": "Fresh Apples",
+    "price": 89.99,
+    "image": "https://via.placeholder.com/150"
+  },
+  {
+    "id": 3,
+    "name": "Cheddar Cheese",
+    "price": 120.00,
+    "image": "https://via.placeholder.com/150"
+  }
+]
