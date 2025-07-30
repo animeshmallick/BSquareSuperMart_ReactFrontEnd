@@ -1,0 +1,37 @@
+import React from 'react';
+import { Fade } from 'react-awesome-reveal';
+
+const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
+    return (
+        <div>
+            <h2 className="text-2xl font-semibold mb-4">📍 Select Delivery Address</h2>
+            <Fade cascade>
+                <div className="grid gap-4">
+                    {addresses.map((addr) => (
+                        <div
+                            key={addr.address_id}
+                            onClick={() => onSelect(addr)}
+                            className={`p-4 rounded-xl border shadow-sm cursor-pointer transition-all duration-200 ${
+                                selected?.address_id === addr.address_id
+                                    ? 'border-green-500 bg-green-50 scale-[1.02]'
+                                    : 'hover:bg-gray-100'
+                            }`}
+                        >
+                            <p>{addr.addr_line1}, {addr.addr_line2}</p>
+                        </div>
+                    ))}
+                </div>
+            </Fade>
+
+            <button
+                onClick={onNext}
+                disabled={!selected}
+                className="mt-6 bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg shadow-lg transition"
+            >
+                Next →
+            </button>
+        </div>
+    );
+};
+
+export default AddressSelector;

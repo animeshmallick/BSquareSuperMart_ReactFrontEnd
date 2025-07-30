@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import CategoryPage from "./pages/Category";
+import LoginPage from "./pages/Login";
 
 export default function App() {
     useEffect(() => {
@@ -18,6 +19,7 @@ export default function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/Category/:categoryName" element={<CategoryPage />} />
+                <Route path="/login" element={<LoginPage />} />
             </Routes>
         </Router>
     );

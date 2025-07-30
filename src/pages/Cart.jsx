@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-dom";
 import CartHelper from "../helpers/CartHelper";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import AuthHelper from "../helpers/AuthHelper";
 
 const CartPage = () => {
     const [products, setProducts] = useState([]);
     const [bill, setBill] = useState(null);
     const navigate = useNavigate();
     const [cart, setCart] = useState(CartHelper.getStoredCart());
+    const isLoggedIn = AuthHelper.isLoggedIn();
 
     const refreshCart = () => {
         const localCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -125,10 +127,10 @@ const CartPage = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={() => navigate("/checkout")}
+                                onClick={() => isLoggedIn ? navigate("/checkout") : navigate("/login?source=cart")}
                                 className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition-all duration-200 shadow-md hover:scale-[1.02]"
                             >
-                                Proceed to Checkout →
+                                {isLoggedIn ? "Proceed to Checkout →" : "Login to Proceed →"}
                             </button>
                         </motion.div>
                     )}
