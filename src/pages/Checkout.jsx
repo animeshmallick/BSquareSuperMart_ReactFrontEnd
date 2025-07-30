@@ -5,6 +5,8 @@ import SPC from '../components/checkout/SPC';
 import { AnimatePresence, motion } from 'framer-motion';
 import AuthHelper from '../helpers/AuthHelper';
 import axios from 'axios';
+import Header from "../components/header";
+import Footer from "../components/footer";
 
 const steps = ['Address', 'Payment', 'Review'];
 
@@ -102,9 +104,10 @@ const Checkout = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto p-6">
+        <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
+            <Header />
             {/* Progress Bar */}
-            <div className="flex justify-between mb-6">
+            <div className="p-5 flex justify-between mb-6">
                 {steps.map((label, i) => (
                     <div
                         key={label}
@@ -129,6 +132,7 @@ const Checkout = () => {
                     {renderStep()}
                 </motion.div>
             </AnimatePresence>
+            <Footer />
         </div>
     );
 };

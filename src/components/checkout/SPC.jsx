@@ -2,7 +2,7 @@ import React from 'react';
 
 const SPC = ({ address, payment, onBack }) => {
     return (
-        <div>
+        <div className="pl-5 pr-5">
             <h2 className="text-2xl font-semibold mb-4">🧾 Review & Confirm</h2>
             <div className="bg-white p-4 rounded-xl shadow-md space-y-4">
                 <div>

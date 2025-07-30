@@ -3,7 +3,7 @@ import { Fade } from 'react-awesome-reveal';
 
 const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack }) => {
     return (
-        <div>
+        <div className="pl-6 pr-6">
             <h2 className="text-2xl font-semibold mb-4">💳 Select Payment Method</h2>
             <Fade cascade>
                 <div className="grid gap-4">

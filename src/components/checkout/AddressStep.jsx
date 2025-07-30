@@ -3,7 +3,7 @@ import { Fade } from 'react-awesome-reveal';
 
 const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
     return (
-        <div>
+        <div className="pl-5 pr-5">
             <h2 className="text-2xl font-semibold mb-4">📍 Select Delivery Address</h2>
             <Fade cascade>
                 <div className="grid gap-4">
