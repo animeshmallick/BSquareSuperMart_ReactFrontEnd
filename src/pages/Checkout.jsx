@@ -9,14 +9,40 @@ import axios from 'axios';
 const steps = ['Address', 'Payment', 'Review'];
 
 const Checkout = () => {
-    const [step, setStep] = useState(0);
+    const getInitialStep = () => {
+        const hasAddress = sessionStorage.getItem('selectedAddress');
+        const hasPayment = sessionStorage.getItem('selectedPayment');
+        if (hasAddress && hasPayment) return 2;
+        if (hasAddress) return 1;
+        return 0;
+    };
+
+    const [step, setStep] = useState(getInitialStep);
     const [addresses, setAddresses] = useState([]);
     const [payments, setPayments] = useState([]);
-    const [selectedAddress, setSelectedAddress] = useState(null);
-    const [selectedPayment, setSelectedPayment] = useState(null);
+    const [selectedAddress, setSelectedAddress] = useState(() => {
+        const saved = sessionStorage.getItem('selectedAddress');
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [selectedPayment, setSelectedPayment] = useState(() => {
+        const saved = sessionStorage.getItem('selectedPayment');
+        return saved ? JSON.parse(saved) : null;
+    });
 
-    const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
-    const prevStep = () => setStep((prev) => Math.max(prev - 1, 0));
+    const nextStep = () => {
+        setStep((prev) => Math.min(prev + 1, steps.length - 1));
+    };
+
+    const prevStep = () => {
+        if (step === 2) {
+            sessionStorage.removeItem('selectedPayment');
+            setSelectedPayment(null);
+        } else if (step === 1) {
+            sessionStorage.removeItem('selectedAddress');
+            setSelectedAddress(null);
+        }
+        setStep((prev) => Math.max(prev - 1, 0));
+    };
 
     useEffect(() => {
         const token = AuthHelper.getToken();
@@ -31,19 +57,24 @@ const Checkout = () => {
         }).then((res) => setPayments(res.data));
     }, []);
 
-    function getStepToDisplay() {
+    const handleSelectAddress = (address) => {
+        setSelectedAddress(address);
+        sessionStorage.setItem('selectedAddress', JSON.stringify(address));
+    };
 
-    }
+    const handleSelectPayment = (payment) => {
+        setSelectedPayment(payment);
+        sessionStorage.setItem('selectedPayment', JSON.stringify(payment));
+    };
 
     const renderStep = () => {
-        const stepInView = getStepToDisplay();
         switch (step) {
             case 0:
                 return (
                     <AddressSelector
                         addresses={addresses}
                         selected={selectedAddress}
-                        onSelect={setSelectedAddress}
+                        onSelect={handleSelectAddress}
                         onNext={nextStep}
                     />
                 );
@@ -52,7 +83,7 @@ const Checkout = () => {
                     <PaymentSelector
                         methods={payments}
                         selected={selectedPayment}
-                        onSelect={setSelectedPayment}
+                        onSelect={handleSelectPayment}
                         onNext={nextStep}
                         onBack={prevStep}
                     />
