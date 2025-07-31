@@ -5,15 +5,25 @@ import { motion } from "framer-motion";
 import { Fade } from "react-awesome-reveal";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import AuthHelper from "../helpers/AuthHelper";
+import CartHelper from "../helpers/CartHelper";
+import CartFooter from "../components/CartFooter";
 
 const CategoriesPage = () => {
     const navigate = useNavigate();
     const [categoriesData, setCategoriesData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [cart, setCart] = useState(CartHelper.getStoredCart());
+    const [allProducts, setAllProducts] = useState({});
 
     useEffect(() => {
-        axios
-            .get("https://qa.api.bsquaresupermart.in/categories")
+        const validate = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
+        };
+        validate();
+        axios.get("https://qa.api.bsquaresupermart.in/categories")
             .then((res) => {
                 setCategoriesData(res.data || {});
                 setLoading(false);
@@ -22,13 +32,22 @@ const CategoriesPage = () => {
                 console.error("Error fetching categories:", err);
                 setLoading(false);
             });
+        axios.get(`https://qa.api.bsquaresupermart.in/getAllProducts`)
+            .then((res) => {
+                const data = res.data;
+                setAllProducts(data);
+            })
+            .catch((err) => {
+                console.log("Failed to fetch all products from server");
+                setLoading(false);
+            })
     }, []);
 
     if (loading) return <div className="text-center p-10 text-xl animate-pulse">Loading Categories...</div>;
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+            <Header isLoggedIn={isLoggedIn}/>
 
             {/* Main Content */}
             <main className="flex-grow p-4 md:p-10 bg-gradient-to-b from-lime-50 via-green-50 to-white">
@@ -70,7 +89,11 @@ const CategoriesPage = () => {
                     </div>
                 ))}
             </main>
-
+            <CartFooter
+                cart={cart}
+                getTotalItems={() => CartHelper.getTotalItems(cart)}
+                getTotalPrice={() => CartHelper.getTotalPrice(cart, allProducts)}
+            />
             <Footer />
         </div>
     );

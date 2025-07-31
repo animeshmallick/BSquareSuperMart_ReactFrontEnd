@@ -40,12 +40,16 @@ class CartHelper {
         return cart.reduce((acc, item) => acc + item.Quantity, 0);
     }
 
-    getTotalPrice(cart, categoryData) {
-        const allProducts = Object.values(categoryData).flat();
-        return cart.reduce((acc, item) => {
-            const product = allProducts.find(p => p.productId === item.ProductID);
-            return acc + (product?.productPrice || 0) * item.Quantity;
-        }, 0);
+    getTotalPrice(cart, allProducts) {
+        try {
+            return cart.reduce((acc, item) => {
+                const product = allProducts.find(p => p.id === item.ProductID);
+                return acc + (product?.selling_price || 0) * item.Quantity;
+            }, 0);
+        }catch (err){
+            return "---"
+        }
     }
+
 }
 export default new CartHelper();

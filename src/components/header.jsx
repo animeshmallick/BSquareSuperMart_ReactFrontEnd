@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Search } from "lucide-react";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import AuthHelper from "../helpers/AuthHelper";
 
-const Header = () => {
+const Header = ({isLoggedIn}) => {
     const navigate = useNavigate();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
@@ -75,7 +76,9 @@ const Header = () => {
                         className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
                         onClick={() => setSearchOpen(true)}
                     />
-                    <User className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+                    {isLoggedIn && (
+                        <User className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+                    )}
                     <Menu
                         className="w-7 h-7 cursor-pointer md:hidden"
                         onClick={() => setDrawerOpen(true)}
@@ -150,19 +153,21 @@ const Header = () => {
 
                 {drawerOpen && (
                     <motion.div
-                        className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-40 flex"
+                        className="fixed inset-0 z-40 bg-black bg-opacity-40 backdrop-blur-sm flex"
                         initial={{ x: "-100%" }}
                         animate={{ x: 0 }}
                         exit={{ x: "-100%" }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
                         <motion.div
                             ref={drawerRef}
-                            initial={{ x: -250 }}
+                            initial={{ x: -300 }}
                             animate={{ x: 0 }}
-                            exit={{ x: -250 }}
+                            exit={{ x: -300 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="w-64 bg-gradient-to-b from-white via-emerald-50 to-white p-6 rounded-tr-3xl rounded-br-3xl shadow-xl relative"
+                            className="w-72 sm:w-80 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 p-6 rounded-tr-3xl rounded-br-3xl shadow-2xl relative"
                         >
+                            {/* Close Button */}
                             <motion.div
                                 variants={closeButtonVariants}
                                 initial="initial"
@@ -172,25 +177,75 @@ const Header = () => {
                                 className="absolute top-4 right-4"
                             >
                                 <X
-                                    className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800 transition-all transform hover:scale-125 hover:rotate-90"
+                                    className="w-6 h-6 cursor-pointer text-gray-400 hover:text-gray-800 transition-all transform hover:scale-125 hover:rotate-90"
                                     onClick={() => setDrawerOpen(false)}
                                 />
                             </motion.div>
-                            <nav className="mt-10 space-y-4">
-                                {['Home', 'Cart', 'About Us'].map((item, i) => (
+
+                            {/* Login Button */}
+                            {!isLoggedIn && (
+                                <motion.button
+                                    whileHover={{ scale: 1.04 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => navigate("/login")}
+                                    className="mt-8 w-full bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded-xl font-medium shadow-md transition-all duration-300"
+                                >
+                                    🔐 Login to Proceed
+                                </motion.button>
+                            )}
+
+                            {/* Navigation Links */}
+                            <nav className="mt-10 space-y-5">
+                                {['🏠 Home', '🛒 Cart', 'ℹ️ About Us'].map((item, i) => (
                                     <motion.div
                                         key={item}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.05 * i }}
-                                        className="text-lg text-gray-800 hover:text-emerald-600 cursor-pointer transition-colors"
+                                        className="text-lg font-medium text-gray-700 hover:text-emerald-600 cursor-pointer transition duration-300"
+                                        onClick={() => {
+                                            setDrawerOpen(false);
+                                            navigate(`/${item.split(' ')[1].toLowerCase()}`);
+                                        }}
                                     >
                                         {item}
                                     </motion.div>
                                 ))}
+                                {/* Profile Nav */}
+                                {isLoggedIn && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.05 * 4 }}
+                                        className="text-lg font-medium text-gray-700 hover:text-emerald-600 cursor-pointer transition duration-300"
+                                        onClick={() => {
+                                            setDrawerOpen(false);
+                                            navigate(`/profile}`);
+                                        }}
+                                    >
+                                        Profile
+                                    </motion.div>
+                                )}
                             </nav>
+
+                            {/* Logout Button */}
+                            {isLoggedIn && (
+                                <motion.button
+                                    whileHover={{ scale: 1.04 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => {
+                                        AuthHelper.logout();
+                                        setDrawerOpen(false);
+                                        navigate("/login");
+                                    }}
+                                    className="mt-8 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-xl font-medium shadow-md transition-all duration-300"
+                                >
+                                    🚪 Logout
+                                </motion.button>
+                            )}
                         </motion.div>
                     </motion.div>
+
                 )}
             </AnimatePresence>
         </header>

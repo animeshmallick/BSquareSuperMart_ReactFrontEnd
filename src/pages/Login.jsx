@@ -39,7 +39,10 @@ const LoginPage = () => {
 
             if (res.data.authToken) {
                 sessionStorage.setItem("authToken", res.data.authToken);
-                navigate("/" + source || "/");
+                if(source)
+                    navigate("/" + source || "/");
+                else
+                    navigate("/");
             } else {
                 setError("Login failed: No token received.");
             }

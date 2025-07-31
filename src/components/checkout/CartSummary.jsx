@@ -121,10 +121,12 @@ const CartSummary = ({ products = [], bill, onUpdate }) => {
                                 <span>Platform Fee</span>
                                 <span>₹{bill.platform_fee.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span>Small Cart Fee</span>
-                                <span>₹{bill.small_cart_fee.toFixed(2)}</span>
-                            </div>
+                            {bill.small_cart_fee > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Small Cart Fee</span>
+                                    <span>₹{bill.small_cart_fee.toFixed(2)}</span>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 )}

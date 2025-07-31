@@ -1,6 +1,9 @@
 import React from 'react';
+import {useNavigate} from "react-router-dom";
+import BottomNavigation from "./BottomNavigation";
 
 const SPC = ({ address, payment, onBack }) => {
+    const navigate = useNavigate();
     return (
         <div className="pl-5 pr-5">
             <h2 className="text-2xl font-semibold mb-4">🧾 Review & Confirm</h2>
@@ -14,13 +17,7 @@ const SPC = ({ address, payment, onBack }) => {
                     <p>{payment?.name}</p>
                 </div>
             </div>
-
-            <div className="mt-6 flex justify-between">
-                <button onClick={onBack} className="text-gray-600 hover:text-black">← Back</button>
-                <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg shadow-lg transition">
-                    ✅ Place Order
-                </button>
-            </div>
+            <BottomNavigation onBack={onBack} onNext={null} selected={null}/>
         </div>
     );
 };

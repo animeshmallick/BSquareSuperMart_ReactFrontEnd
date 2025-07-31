@@ -170,6 +170,17 @@ const Checkout = () => {
                             className={`flex-1 text-center font-medium pb-2 border-b-4 transition-all duration-300 ${
                                 step === i ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-400'
                             }`}
+                            onClick={() => {
+                                if (i === 0 && i < step) {
+                                    sessionStorage.removeItem('selectedAddress');
+                                    setSelectedAddress(null);
+                                    setStep(i);
+                                } else if (i === 1 && i < step) {
+                                    sessionStorage.removeItem('selectedPayment');
+                                    setSelectedPayment(null);
+                                    setStep(i);
+                                }
+                            }}
                         >
                             {label}
                         </div>

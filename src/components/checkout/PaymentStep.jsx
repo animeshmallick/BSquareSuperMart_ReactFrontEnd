@@ -1,5 +1,6 @@
 import React from 'react';
 import { Fade } from 'react-awesome-reveal';
+import BottomNavigation from "./BottomNavigation";
 
 const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack }) => {
     return (
@@ -23,16 +24,7 @@ const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack }) => {
                 </div>
             </Fade>
 
-            <div className="mt-6 flex justify-between">
-                <button onClick={onBack} className="text-gray-600 hover:text-black">← Back</button>
-                <button
-                    onClick={onNext}
-                    disabled={!selected}
-                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg shadow-lg transition"
-                >
-                    Next →
-                </button>
-            </div>
+            <BottomNavigation onBack={onBack} onNext={onNext} selected={selected}/>
         </div>
     );
 };

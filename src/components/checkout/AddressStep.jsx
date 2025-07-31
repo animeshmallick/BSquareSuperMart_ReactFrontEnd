@@ -1,5 +1,6 @@
 import React from 'react';
 import { Fade } from 'react-awesome-reveal';
+import BottomNavigation from "./BottomNavigation";
 
 const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
     return (
@@ -23,13 +24,7 @@ const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
                 </div>
             </Fade>
 
-            <button
-                onClick={onNext}
-                disabled={!selected}
-                className="mt-6 bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg shadow-lg transition"
-            >
-                Next →
-            </button>
+            <BottomNavigation onBack={null} onNext={onNext} selected={selected} />
         </div>
     );
 };

@@ -3,6 +3,8 @@ import axios from "axios";
 class AuthHelper {
     logout() {
         sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("selectedAddress");
+        sessionStorage.removeItem("selectedPayment")
     }
 
     async isLoggedIn() {

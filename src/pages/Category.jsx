@@ -8,6 +8,7 @@ import { Fade } from "react-awesome-reveal";
 import CartFooter from "../components/CartFooter";
 import CartHelper from "../helpers/CartHelper";
 import Sidebar from "../components/Sidebar";
+import AuthHelper from "../helpers/AuthHelper";
 
 const CategoryPage = () => {
     const { categoryName } = useParams();
@@ -15,10 +16,16 @@ const CategoryPage = () => {
     const [selectedSubCategory, setSelectedSubCategory] = useState("");
     const [loading, setLoading] = useState(true);
     const [cart, setCart] = useState(CartHelper.getStoredCart());
+    const [allProducts, setAllProducts] = useState({});
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        axios
-            .get(`https://qa.api.bsquaresupermart.in/category/${categoryName}`)
+        const validate = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
+        };
+        validate();
+        axios.get(`https://qa.api.bsquaresupermart.in/category/${categoryName}`)
             .then((res) => {
                 const data = res.data || {};
                 setCategoryData(data);
@@ -30,6 +37,15 @@ const CategoryPage = () => {
                 console.error("Error fetching products:", err);
                 setLoading(false);
             });
+        axios.get(`https://qa.api.bsquaresupermart.in/getAllProducts`)
+            .then((res) => {
+                const data = res.data;
+                setAllProducts(data);
+            })
+            .catch((err) => {
+                console.log("Failed to fetch all products from server");
+                setLoading(false);
+            })
     }, [categoryName]);
 
     const addToCart = (productId) => {
@@ -51,7 +67,7 @@ const CategoryPage = () => {
 
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
-            <Header />
+            <Header isLoggedIn={isLoggedIn}/>
             <main className="flex-grow px-2 sm:px-6 md:px-12 py-10">
                 {/* Header + Sidebar */}
                 {/* ... */}
@@ -157,7 +173,7 @@ const CategoryPage = () => {
             <CartFooter
                 cart={cart}
                 getTotalItems={() => CartHelper.getTotalItems(cart)}
-                getTotalPrice={() => CartHelper.getTotalPrice(cart, categoryData)}
+                getTotalPrice={() => CartHelper.getTotalPrice(cart, allProducts)}
             />
             <Footer />
         </div>
