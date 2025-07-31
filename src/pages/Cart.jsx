@@ -10,12 +10,12 @@ import AuthHelper from "../helpers/AuthHelper";
 const CartPage = () => {
     const [products, setProducts] = useState([]);
     const [bill, setBill] = useState(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
     const [cart, setCart] = useState(CartHelper.getStoredCart());
-    const isLoggedIn = AuthHelper.isLoggedIn();
 
     const refreshCart = () => {
-        const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+        const localCart = CartHelper.getStoredCart();
         if (localCart.length > 0) {
             axios
                 .post("https://qa.api.bsquaresupermart.in/cart", localCart)
@@ -27,14 +27,20 @@ const CartPage = () => {
         }
     };
 
-    useEffect(() => {
-        refreshCart();
-    }, []);
-
     const handleUpdateQuantity = (productId, change) => {
-        setCart(CartHelper.updateQuantity(cart, productId, change));
+        const updatedCart = CartHelper.updateQuantity(cart, productId, change);
+        setCart(updatedCart);
         refreshCart();
     };
+
+    useEffect(() => {
+        const validate = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
+        };
+        validate();
+        refreshCart();
+    }, []);
 
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
@@ -127,7 +133,9 @@ const CartPage = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={() => isLoggedIn ? navigate("/checkout") : navigate("/login?source=cart")}
+                                onClick={() =>
+                                    isLoggedIn ? navigate("/checkout") : navigate("/login?source=cart")
+                                }
                                 className="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg transition-all duration-200 shadow-md hover:scale-[1.02]"
                             >
                                 {isLoggedIn ? "Proceed to Checkout →" : "Login to Proceed →"}

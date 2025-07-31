@@ -7,6 +7,9 @@ import AuthHelper from '../helpers/AuthHelper';
 import axios from 'axios';
 import Header from "../components/header";
 import Footer from "../components/footer";
+import CartSummary from "../components/checkout/CartSummary";
+import CartHelper from "../helpers/CartHelper";
+import {useNavigate} from "react-router-dom";
 
 const steps = ['Address', 'Payment', 'Review'];
 
@@ -18,10 +21,11 @@ const Checkout = () => {
         if (hasAddress) return 1;
         return 0;
     };
-
+    const navigate = useNavigate();
     const [step, setStep] = useState(getInitialStep);
     const [addresses, setAddresses] = useState([]);
     const [payments, setPayments] = useState([]);
+    const [cartData, setCartData] = useState({ products: [], bill: null });
     const [selectedAddress, setSelectedAddress] = useState(() => {
         const saved = sessionStorage.getItem('selectedAddress');
         return saved ? JSON.parse(saved) : null;
@@ -45,10 +49,39 @@ const Checkout = () => {
         }
         setStep((prev) => Math.max(prev - 1, 0));
     };
+    const updateCart = (newProducts) => {
+        const token = AuthHelper.getToken();
+        const cartToSave = newProducts.map(p => ({
+            ProductID: p.id,
+            Quantity: p.quantity
+        }));
+
+        CartHelper.saveCart(cartToSave);
+
+        axios.post('https://qa.api.bsquaresupermart.in/cart', cartToSave, {
+            headers: {
+                'x-authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        }).then((res) => {
+            setCartData({
+                products: res.data.products,
+                bill: res.data.bill
+            });
+        }).catch((err) => {
+            console.error("Cart update failed", err);
+        });
+    };
+
 
     useEffect(() => {
+        const validate = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            if (!loggedIn)
+                navigate("/login?source=checkout")
+        };
+        validate();
         const token = AuthHelper.getToken();
-        if (!token) return;
 
         axios.get('https://qa.api.bsquaresupermart.in/getUserAddresses', {
             headers: { 'x-authorization': `Bearer ${token}` }
@@ -57,6 +90,24 @@ const Checkout = () => {
         axios.get('https://qa.api.bsquaresupermart.in/getPaymentMethod', {
             headers: { 'x-authorization': `Bearer ${token}` }
         }).then((res) => setPayments(res.data));
+
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            const cartItems = JSON.parse(savedCart);
+            axios.post('https://qa.api.bsquaresupermart.in/cart', cartItems, {
+                headers: {
+                    'x-authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then((res) => {
+                setCartData({
+                    products: res.data.products,
+                    bill: res.data.bill
+                });
+            }).catch((err) => {
+                console.error("Cart fetch error:", err);
+            });
+        }
     }, []);
 
     const handleSelectAddress = (address) => {
@@ -104,34 +155,39 @@ const Checkout = () => {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
+        <div className="min-h-screen flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
             <Header />
-            {/* Progress Bar */}
-            <div className="p-5 flex justify-between mb-6">
-                {steps.map((label, i) => (
-                    <div
-                        key={label}
-                        className={`flex-1 text-center font-medium pb-2 border-b-4 transition-all duration-300 ${
-                            step === i ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-400'
-                        }`}
-                    >
-                        {label}
-                    </div>
-                ))}
-            </div>
+            <main className="flex-grow">
+                <CartSummary
+                    products={cartData.products}
+                    bill={cartData.bill}
+                    onUpdate={updateCart}
+                />
+                <div className="p-5 flex justify-between mb-6">
+                    {steps.map((label, i) => (
+                        <div
+                            key={label}
+                            className={`flex-1 text-center font-medium pb-2 border-b-4 transition-all duration-300 ${
+                                step === i ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-400'
+                            }`}
+                        >
+                            {label}
+                        </div>
+                    ))}
+                </div>
 
-            {/* Animated Step */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={step}
-                    initial={{ opacity: 0, x: 80 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -80 }}
-                    transition={{ duration: 0.4 }}
-                >
-                    {renderStep()}
-                </motion.div>
-            </AnimatePresence>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0, x: 80 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -80 }}
+                        transition={{ duration: 0.4 }}
+                    >
+                        {renderStep()}
+                    </motion.div>
+                </AnimatePresence>
+            </main>
             <Footer />
         </div>
     );

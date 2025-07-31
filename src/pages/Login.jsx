@@ -16,10 +16,15 @@ const LoginPage = () => {
     const source = queryParams.get("source");
 
     useEffect(() => {
-        if (AuthHelper.isLoggedIn()) {
-            navigate("/" + source || "/");
-        }
+        const checkLogin = async () => {
+            const isLoggedIn = await AuthHelper.isLoggedIn();
+            if (isLoggedIn) {
+                navigate("/" + (source || ""));
+            }
+        };
+        checkLogin();
     }, [navigate, source]);
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -33,7 +38,7 @@ const LoginPage = () => {
             });
 
             if (res.data.authToken) {
-                localStorage.setItem("authToken", res.data.authToken);
+                sessionStorage.setItem("authToken", res.data.authToken);
                 navigate("/" + source || "/");
             } else {
                 setError("Login failed: No token received.");

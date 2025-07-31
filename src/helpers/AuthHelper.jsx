@@ -1,13 +1,42 @@
+import axios from "axios";
+
 class AuthHelper {
     logout() {
-        localStorage.removeItem("authToken");
+        sessionStorage.removeItem("authToken");
     }
 
-    isLoggedIn() {
-        return !!localStorage.getItem("authToken");
+    async isLoggedIn() {
+        try {
+            const token = sessionStorage.getItem("authToken") || "";
+            if (!token){
+                this.logout()
+                return false;
+            }
+            const res = await axios.post(
+                "https://qa.api.bsquaresupermart.in/isvalidToken",
+                {},
+                {
+                    headers: {
+                        'x-authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (res.data?.is_valid_user) {
+                return true;
+            } else {
+                this.logout();
+                return false;
+            }
+        } catch (error) {
+            console.error("Token validation failed:", error);
+            this.logout();
+            return false;
+        }
     }
+
     getToken(){
-        return localStorage.getItem("authToken");
+        return sessionStorage.getItem("authToken");
     }
 }
 export default new AuthHelper();

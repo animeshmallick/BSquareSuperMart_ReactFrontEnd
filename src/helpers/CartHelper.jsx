@@ -16,7 +16,11 @@ class CartHelper {
     }
 
     addToCart(cart, productId) {
-        const updatedCart = [...cart, { ProductID: productId, Quantity: 1 }];
+        const existing = cart.find((p) => p.ProductID === productId);
+        const updatedCart = existing
+            ? this.updateQuantity(cart, productId, 1)
+            : [...cart, { ProductID: productId, Quantity: 1 }];
+
         this.saveCart(updatedCart);
         return updatedCart;
     }
