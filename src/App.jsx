@@ -8,6 +8,7 @@ import Checkout from './pages/Checkout';
 import CategoryPage from "./pages/Category";
 import LoginPage from "./pages/Login";
 import ThankYouPage from "./pages/ThankYouPage";
+import ProductPage from "./pages/Product";
 
 export default function App() {
     useEffect(() => {
@@ -22,6 +23,7 @@ export default function App() {
                 <Route path="/Category/:categoryName" element={<CategoryPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/thankyou/:purchaseId" element={<ThankYouPage />} />
+                <Route path="product/:productId" element={<ProductPage />} />
             </Routes>
         </Router>
     );

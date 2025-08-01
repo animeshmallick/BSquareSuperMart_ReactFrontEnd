@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/header";
 import Footer from "../components/footer";
@@ -12,6 +12,8 @@ import AuthHelper from "../helpers/AuthHelper";
 
 const CategoryPage = () => {
     const { categoryName } = useParams();
+    const navigate = useNavigate();
+
     const [categoryData, setCategoryData] = useState({});
     const [selectedSubCategory, setSelectedSubCategory] = useState("");
     const [loading, setLoading] = useState(true);
@@ -25,6 +27,7 @@ const CategoryPage = () => {
             setIsLoggedIn(loggedIn);
         };
         validate();
+
         axios.get(`https://qa.api.bsquaresupermart.in/category/${categoryName}`)
             .then((res) => {
                 const data = res.data || {};
@@ -37,15 +40,13 @@ const CategoryPage = () => {
                 console.error("Error fetching products:", err);
                 setLoading(false);
             });
+
         axios.get(`https://qa.api.bsquaresupermart.in/getAllProducts`)
-            .then((res) => {
-                const data = res.data;
-                setAllProducts(data);
-            })
+            .then((res) => setAllProducts(res.data))
             .catch((err) => {
                 console.log("Failed to fetch all products from server");
                 setLoading(false);
-            })
+            });
     }, [categoryName]);
 
     const addToCart = (productId) => {
@@ -58,28 +59,31 @@ const CategoryPage = () => {
         setCart(updatedCart);
     };
 
-    if (loading)
+    const goToProductPage = (productId) => {
+        navigate(`/product/${productId}`);
+    };
+
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen text-xl text-gray-700 animate-pulse">
                 Loading products...
             </div>
         );
+    }
 
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
-            <Header isLoggedIn={isLoggedIn}/>
+            <Header isLoggedIn={isLoggedIn} />
             <main className="flex-grow px-2 sm:px-6 md:px-12 py-10">
-
                 <div className="grid grid-cols-[20%_75%] gap-4 sm:gap-6">
-                    <div>
                     <Sidebar
                         subCategories={Object.keys(categoryData)}
                         selected={selectedSubCategory}
                         onSelect={setSelectedSubCategory}
                     />
-                    </div>
+
                     <div>
-                    <Fade direction="up" cascade damping={0.1} triggerOnce>
+                        <Fade direction="up" cascade damping={0.1} triggerOnce>
                             <h2 className="text-2xl font-semibold text-gray-800 mb-6 border-l-4 border-emerald-500 pl-4">
                                 {selectedSubCategory}
                             </h2>
@@ -96,14 +100,13 @@ const CategoryPage = () => {
                                     ((product.productMrp - product.productPrice) / product.productMrp) * 100
                                 );
                                 const quantity = CartHelper.getQuantity(cart, product.productId);
-
                                 const fullProductInfo = allProducts[product.productId];
                                 const inStock = fullProductInfo && fullProductInfo.stock > 0;
 
                                 return (
                                     <motion.div
                                         key={product.productId}
-                                        className={`relative bg-white rounded-2xl shadow ${
+                                        className={`relative bg-white rounded-2xl shadow-md ${
                                             !inStock ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"
                                         } p-3 transition-all duration-300 group`}
                                         whileHover={inStock ? { scale: 1.03 } : {}}
@@ -120,31 +123,29 @@ const CategoryPage = () => {
                                             </div>
                                         )}
 
-                                        <img
-                                            src={product.productImg}
-                                            alt={product.productName}
-                                            className={`h-22 w-full object-contain mb-3 transition-transform duration-300 ${
-                                                inStock ? "group-hover:scale-105" : ""
-                                            }`}
-                                        />
-
-                                        <div className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
-                                            {product.productName}
-                                        </div>
-
-                                        <div className="text-xs text-gray-500 mb-2">
-                                            {product.productSize}
+                                        <div onClick={() => inStock && goToProductPage(product.productId)} className="cursor-pointer">
+                                            <img
+                                                src={product.productImg}
+                                                alt={product.productName}
+                                                className={`h-22 w-full object-contain mb-3 transition-transform duration-300 ${
+                                                    inStock ? "group-hover:scale-105" : ""
+                                                }`}
+                                            />
+                                            <div className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
+                                                {product.productName}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mb-2">{product.productSize}</div>
                                         </div>
 
                                         <div>
                                             <div className="flex space-x-2 items-center">
-                                            <span className="text-emerald-600 font-bold text-sm">
-                                                ₹{product.productPrice}
-                                            </span>
+                        <span className="text-emerald-600 font-bold text-sm">
+                          ₹{product.productPrice}
+                        </span>
                                                 {discount > 0 && (
                                                     <span className="text-xs line-through text-gray-400">
-                                                        ₹{product.productMrp}
-                                                    </span>
+                            ₹{product.productMrp}
+                          </span>
                                                 )}
                                             </div>
 
@@ -164,9 +165,7 @@ const CategoryPage = () => {
                                                         >
                                                             −
                                                         </button>
-                                                        <span className="text-gray-800 font-semibold text-sm">
-                                                            {quantity}
-                                                        </span>
+                                                        <span className="text-gray-800 font-semibold text-sm">{quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(product.productId, 1)}
                                                             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full w-7 h-7 text-sm font-bold"
@@ -176,7 +175,9 @@ const CategoryPage = () => {
                                                     </div>
                                                 )
                                             ) : (
-                                                <div className="mt-2 text-xs text-red-500 font-semibold">Currently unavailable</div>
+                                                <div className="mt-2 text-xs text-red-500 font-semibold">
+                                                    Currently unavailable
+                                                </div>
                                             )}
                                         </div>
                                     </motion.div>
@@ -186,6 +187,7 @@ const CategoryPage = () => {
                     </div>
                 </div>
             </main>
+
             <CartFooter
                 cart={cart}
                 getTotalItems={() => CartHelper.getTotalItems(cart)}

@@ -215,10 +215,10 @@ const Checkout = () => {
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 via-white to-emerald-50">
             <Header isLoggedIn={isLoggedIn}/>
-            <h2 className="text-3xl font-bold text-center text-emerald-600 m-2">
-                🛒 Checkout
-            </h2>
-            <main className="flex-grow">
+            <main className="flex-grow px-3 py-3 flex justify-center items-start">
+                <h2 className="text-3xl font-bold text-center text-emerald-600 m-2">
+                    🛒 Checkout
+                </h2>
                 <CartSummary
                     products={cartData.products}
                     bill={cartData.bill}
