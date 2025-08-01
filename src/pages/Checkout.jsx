@@ -13,8 +13,6 @@ import {useNavigate} from "react-router-dom";
 
 const steps = ['Address', 'Payment', 'Review'];
 
-// ... (Imports remain unchanged)
-
 const Checkout = () => {
     const getInitialStep = () => {
         const hasAddress = sessionStorage.getItem('selectedAddress');
@@ -29,8 +27,9 @@ const Checkout = () => {
     const [addresses, setAddresses] = useState([]);
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [error, setError] = useState("");
-    const [cartData, setCartData] = useState({ products: [], bill: null });
+    const [cartData, setCartData] = useState({ products: CartHelper.getStoredCart(), bill: null });
 
     const [selectedAddress, setSelectedAddress] = useState(() => {
         const saved = sessionStorage.getItem('selectedAddress');
@@ -131,9 +130,12 @@ const Checkout = () => {
     useEffect(() => {
         const validate = async () => {
             const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
             if (!loggedIn) navigate("/login?source=checkout");
         };
         validate();
+        if(cartData.products.length === 0)
+            navigate("/cart");
 
         const token = AuthHelper.getToken();
 
@@ -212,7 +214,7 @@ const Checkout = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 via-white to-emerald-50">
-            <Header />
+            <Header isLoggedIn={isLoggedIn}/>
             <h2 className="text-3xl font-bold text-center text-emerald-600 m-2">
                 🛒 Checkout
             </h2>

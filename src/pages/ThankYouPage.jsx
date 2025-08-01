@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import {useParams, Link, useNavigate} from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import { CheckCircle, Truck, PackageCheck, CreditCard, Clock } from "lucide-react";
+import AuthHelper from "../helpers/AuthHelper";
 
 const STATUS_STAGES = [
     "PLACED",
@@ -20,6 +21,8 @@ const ThankYou = () => {
     const [purchaseDoc, setPurchaseDoc] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const fetchPurchaseDoc = async () => {
         try {
@@ -42,6 +45,12 @@ const ThankYou = () => {
     };
 
     useEffect(() => {
+        const validate = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
+            if (!loggedIn) navigate("/login?source=cart");
+        };
+        validate();
         fetchPurchaseDoc();
         const interval = setInterval(fetchPurchaseDoc, 15000);
         return () => clearInterval(interval);
@@ -54,7 +63,7 @@ const ThankYou = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-100 via-white to-lime-50 text-gray-800 flex flex-col">
-            <Header />
+            <Header isLoggedIn={isLoggedIn}/>
             <main className="flex-grow px-3 py-3 flex justify-center items-start">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
