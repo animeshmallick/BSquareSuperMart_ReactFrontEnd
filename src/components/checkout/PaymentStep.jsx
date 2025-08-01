@@ -2,7 +2,7 @@ import React from 'react';
 import { Fade } from 'react-awesome-reveal';
 import BottomNavigation from "./BottomNavigation";
 
-const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack }) => {
+const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack, placeOrder}) => {
     return (
         <div className="pl-6 pr-6">
             <h2 className="text-2xl font-semibold mb-4">💳 Select Payment Method</h2>
@@ -24,7 +24,7 @@ const PaymentSelector = ({ methods, selected, onSelect, onNext, onBack }) => {
                 </div>
             </Fade>
 
-            <BottomNavigation onBack={onBack} onNext={onNext} selected={selected}/>
+            <BottomNavigation onBack={onBack} onNext={onNext} selected={selected} placeOrder={placeOrder}/>
         </div>
     );
 };

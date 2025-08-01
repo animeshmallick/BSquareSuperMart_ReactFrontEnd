@@ -2,7 +2,7 @@ import React from 'react';
 import { Fade } from 'react-awesome-reveal';
 import BottomNavigation from "./BottomNavigation";
 
-const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
+const AddressSelector = ({ addresses, selected, onSelect, onNext, placeOrder }) => {
     return (
         <div className="pl-5 pr-5">
             <h2 className="text-2xl font-semibold mb-4">📍 Select Delivery Address</h2>
@@ -24,7 +24,7 @@ const AddressSelector = ({ addresses, selected, onSelect, onNext }) => {
                 </div>
             </Fade>
 
-            <BottomNavigation onBack={null} onNext={onNext} selected={selected} />
+            <BottomNavigation onBack={null} onNext={onNext} selected={selected} placeOrder={placeOrder} />
         </div>
     );
 };

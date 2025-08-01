@@ -1,7 +1,9 @@
 import {motion} from "framer-motion";
 import React from "react";
+import {useNavigate} from "react-router-dom";
 
-const BottomNavigation = ({onBack, onNext, selected}) => {
+const BottomNavigation = ({onBack, onNext, selected, placeOrder}) => {
+    const navigate = useNavigate();
     return (
         <motion.div
             className="mt-6 flex flex-wrap justify-between items-center gap-3"
@@ -32,6 +34,7 @@ const BottomNavigation = ({onBack, onNext, selected}) => {
             {/* Place Order Button */}
             {onNext === null && (
                 <motion.button
+                    onTap={placeOrder}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
                     className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 md:px-6 rounded-lg shadow-md font-semibold transition-colors duration-300"

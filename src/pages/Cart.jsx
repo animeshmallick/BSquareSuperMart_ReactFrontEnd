@@ -57,7 +57,7 @@ const CartPage = () => {
                     {products.length > 0 ? (
                         products.map((item, index) => (
                                 <motion.div
-                                    key={item.id}
+                                    key={`${item.id}-${index}`}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.4, delay: index * 0.1 }}

@@ -2,7 +2,7 @@ import React from 'react';
 import {useNavigate} from "react-router-dom";
 import BottomNavigation from "./BottomNavigation";
 
-const SPC = ({ address, payment, onBack }) => {
+const SPC = ({ address, payment, onBack, placeOrder }) => {
     const navigate = useNavigate();
     return (
         <div className="pl-5 pr-5">
@@ -17,7 +17,7 @@ const SPC = ({ address, payment, onBack }) => {
                     <p>{payment?.name}</p>
                 </div>
             </div>
-            <BottomNavigation onBack={onBack} onNext={null} selected={null}/>
+            <BottomNavigation onBack={onBack} onNext={null} selected={null} placeOrder={placeOrder}/>
         </div>
     );
 };

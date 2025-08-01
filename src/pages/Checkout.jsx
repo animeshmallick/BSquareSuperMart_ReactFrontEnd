@@ -13,6 +13,8 @@ import {useNavigate} from "react-router-dom";
 
 const steps = ['Address', 'Payment', 'Review'];
 
+// ... (Imports remain unchanged)
+
 const Checkout = () => {
     const getInitialStep = () => {
         const hasAddress = sessionStorage.getItem('selectedAddress');
@@ -21,24 +23,26 @@ const Checkout = () => {
         if (hasAddress) return 1;
         return 0;
     };
+
     const navigate = useNavigate();
     const [step, setStep] = useState(getInitialStep);
     const [addresses, setAddresses] = useState([]);
     const [payments, setPayments] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [cartData, setCartData] = useState({ products: [], bill: null });
+
     const [selectedAddress, setSelectedAddress] = useState(() => {
         const saved = sessionStorage.getItem('selectedAddress');
         return saved ? JSON.parse(saved) : null;
     });
+
     const [selectedPayment, setSelectedPayment] = useState(() => {
         const saved = sessionStorage.getItem('selectedPayment');
         return saved ? JSON.parse(saved) : null;
     });
 
-    const nextStep = () => {
-        setStep((prev) => Math.min(prev + 1, steps.length - 1));
-    };
-
+    const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => {
         if (step === 2) {
             sessionStorage.removeItem('selectedPayment');
@@ -49,6 +53,57 @@ const Checkout = () => {
         }
         setStep((prev) => Math.max(prev - 1, 0));
     };
+
+    const placeOrder = async () => {
+        setLoading(true);
+        setError("");
+
+        try {
+            const token = AuthHelper.getToken();
+            const { data: purchaseRes } = await axios.get("https://qa.api.bsquaresupermart.in/getPurchaseID", {
+                headers: {
+                    "x-authorization": `Bearer ${token}`,
+                    "accept": "application/json"
+                }
+            });
+            const purchaseId = purchaseRes.purchaseID;
+
+            const payload = {
+                purchase_id: purchaseId,
+                address: selectedAddress.address_id,
+                payment: selectedPayment.id,
+                cart: cartData.products.map(item => ({
+                    ProductID: item.id,
+                    Quantity: item.quantity
+                }))
+            };
+
+            const response = await axios.post(
+                "https://qa.api.bsquaresupermart.in/placeOrder",
+                payload,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.data?.signed === true) {
+                localStorage.removeItem("cart");
+                sessionStorage.removeItem("selectedAddress");
+                sessionStorage.removeItem("selectedPayment");
+            }
+
+            navigate("/thankyou/" + purchaseId);
+        } catch (err) {
+            console.error("Order placement failed:", err);
+            setError("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const updateCart = (newProducts) => {
         const token = AuthHelper.getToken();
         const cartToSave = newProducts.map(p => ({
@@ -73,14 +128,13 @@ const Checkout = () => {
         });
     };
 
-
     useEffect(() => {
         const validate = async () => {
             const loggedIn = await AuthHelper.isLoggedIn();
-            if (!loggedIn)
-                navigate("/login?source=checkout")
+            if (!loggedIn) navigate("/login?source=checkout");
         };
         validate();
+
         const token = AuthHelper.getToken();
 
         axios.get('https://qa.api.bsquaresupermart.in/getUserAddresses', {
@@ -104,9 +158,7 @@ const Checkout = () => {
                     products: res.data.products,
                     bill: res.data.bill
                 });
-            }).catch((err) => {
-                console.error("Cart fetch error:", err);
-            });
+            }).catch((err) => console.error("Cart fetch error:", err));
         }
     }, []);
 
@@ -129,6 +181,7 @@ const Checkout = () => {
                         selected={selectedAddress}
                         onSelect={handleSelectAddress}
                         onNext={nextStep}
+                        placeOrder={placeOrder}
                     />
                 );
             case 1:
@@ -139,6 +192,7 @@ const Checkout = () => {
                         onSelect={handleSelectPayment}
                         onNext={nextStep}
                         onBack={prevStep}
+                        placeOrder={placeOrder}
                     />
                 );
             case 2:
@@ -147,6 +201,8 @@ const Checkout = () => {
                         address={selectedAddress}
                         payment={selectedPayment}
                         onBack={prevStep}
+                        placeOrder={placeOrder}
+                        loading={loading}
                     />
                 );
             default:
@@ -155,8 +211,11 @@ const Checkout = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
+        <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 via-white to-emerald-50">
             <Header />
+            <h2 className="text-3xl font-bold text-center text-emerald-600 m-2">
+                🛒 Checkout
+            </h2>
             <main className="flex-grow">
                 <CartSummary
                     products={cartData.products}
@@ -165,39 +224,52 @@ const Checkout = () => {
                 />
                 <div className="p-5 flex justify-between mb-6">
                     {steps.map((label, i) => (
-                        <div
+                        <motion.div
                             key={label}
-                            className={`flex-1 text-center font-medium pb-2 border-b-4 transition-all duration-300 ${
+                            whileHover={{ scale: i < step ? 1.05 : 1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className={`flex-1 text-center cursor-pointer font-medium pb-2 border-b-4 transition-all duration-300 ${
                                 step === i ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-400'
                             }`}
                             onClick={() => {
-                                if (i === 0 && i < step) {
-                                    sessionStorage.removeItem('selectedAddress');
-                                    setSelectedAddress(null);
-                                    setStep(i);
-                                } else if (i === 1 && i < step) {
-                                    sessionStorage.removeItem('selectedPayment');
-                                    setSelectedPayment(null);
+                                if (i < step) {
+                                    if (i === 0) {
+                                        sessionStorage.removeItem('selectedAddress');
+                                        setSelectedAddress(null);
+                                    } else if (i === 1) {
+                                        sessionStorage.removeItem('selectedPayment');
+                                        setSelectedPayment(null);
+                                    }
                                     setStep(i);
                                 }
                             }}
                         >
                             {label}
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
 
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={step}
-                        initial={{ opacity: 0, x: 80 }}
+                        initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -80 }}
-                        transition={{ duration: 0.4 }}
+                        exit={{ opacity: 0, x: -50 }}
+                        transition={{ duration: 0.3 }}
                     >
                         {renderStep()}
                     </motion.div>
                 </AnimatePresence>
+
+                {error && (
+                    <motion.div
+                        className="text-red-500 text-center mt-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                    >
+                        {error}
+                    </motion.div>
+                )}
             </main>
             <Footer />
         </div>
