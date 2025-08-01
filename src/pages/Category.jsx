@@ -69,8 +69,6 @@ const CategoryPage = () => {
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
             <Header isLoggedIn={isLoggedIn}/>
             <main className="flex-grow px-2 sm:px-6 md:px-12 py-10">
-                {/* Header + Sidebar */}
-                {/* ... */}
 
                 <div className="grid grid-cols-[20%_75%] gap-4 sm:gap-6">
                     <div>
@@ -99,11 +97,16 @@ const CategoryPage = () => {
                                 );
                                 const quantity = CartHelper.getQuantity(cart, product.productId);
 
+                                const fullProductInfo = allProducts[product.productId];
+                                const inStock = fullProductInfo && fullProductInfo.stock > 0;
+
                                 return (
                                     <motion.div
                                         key={product.productId}
-                                        className="relative bg-white rounded-2xl shadow hover:shadow-lg p-3 transition-all duration-300 cursor-pointer group"
-                                        whileHover={{ scale: 1.03 }}
+                                        className={`relative bg-white rounded-2xl shadow ${
+                                            !inStock ? "opacity-50 cursor-not-allowed" : "hover:shadow-lg"
+                                        } p-3 transition-all duration-300 group`}
+                                        whileHover={inStock ? { scale: 1.03 } : {}}
                                     >
                                         {discount > 0 && (
                                             <div className="absolute top-2 left-2 bg-blue-600 text-white text-[11px] font-bold py-0.5 px-1.5 rounded-md shadow-sm z-10">
@@ -111,10 +114,18 @@ const CategoryPage = () => {
                                             </div>
                                         )}
 
+                                        {!inStock && (
+                                            <div className="absolute top-2 right-2 bg-red-600 text-white text-[11px] font-bold py-0.5 px-1.5 rounded-md shadow-sm z-10">
+                                                OUT OF STOCK
+                                            </div>
+                                        )}
+
                                         <img
                                             src={product.productImg}
                                             alt={product.productName}
-                                            className="h-22 w-full object-contain mb-3 transition-transform duration-300 group-hover:scale-105"
+                                            className={`h-22 w-full object-contain mb-3 transition-transform duration-300 ${
+                                                inStock ? "group-hover:scale-105" : ""
+                                            }`}
                                         />
 
                                         <div className="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">
@@ -127,40 +138,45 @@ const CategoryPage = () => {
 
                                         <div>
                                             <div className="flex space-x-2 items-center">
-                                                <span className="text-emerald-600 font-bold text-sm">
-                                                    ₹{product.productPrice}
-                                                </span>
+                                            <span className="text-emerald-600 font-bold text-sm">
+                                                ₹{product.productPrice}
+                                            </span>
                                                 {discount > 0 && (
                                                     <span className="text-xs line-through text-gray-400">
                                                         ₹{product.productMrp}
                                                     </span>
                                                 )}
                                             </div>
-                                            {quantity === 0 ? (
-                                                <button
-                                                    onClick={() => addToCart(product.productId)}
-                                                    className="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg font-medium transition-all"
-                                                >
-                                                    ADD
-                                                </button>
+
+                                            {inStock ? (
+                                                quantity === 0 ? (
+                                                    <button
+                                                        onClick={() => addToCart(product.productId)}
+                                                        className="text-sm bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg font-medium transition-all mt-2"
+                                                    >
+                                                        ADD
+                                                    </button>
+                                                ) : (
+                                                    <div className="flex items-center space-x-2 mt-2">
+                                                        <button
+                                                            onClick={() => updateQuantity(product.productId, -1)}
+                                                            className="bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 text-sm font-bold"
+                                                        >
+                                                            −
+                                                        </button>
+                                                        <span className="text-gray-800 font-semibold text-sm">
+                                                            {quantity}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => updateQuantity(product.productId, 1)}
+                                                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full w-7 h-7 text-sm font-bold"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                )
                                             ) : (
-                                                <div className="flex items-center space-x-2">
-                                                    <button
-                                                        onClick={() => updateQuantity(product.productId, -1)}
-                                                        className="bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 text-sm font-bold"
-                                                    >
-                                                        −
-                                                    </button>
-                                                    <span className="text-gray-800 font-semibold text-sm">
-                                                        {quantity}
-                                                    </span>
-                                                    <button
-                                                        onClick={() => updateQuantity(product.productId, 1)}
-                                                        className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full w-7 h-7 text-sm font-bold"
-                                                    >
-                                                        +
-                                                    </button>
-                                                </div>
+                                                <div className="mt-2 text-xs text-red-500 font-semibold">Currently unavailable</div>
                                             )}
                                         </div>
                                     </motion.div>
