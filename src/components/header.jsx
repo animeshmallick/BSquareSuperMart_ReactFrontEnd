@@ -118,6 +118,10 @@ const Header = ({isLoggedIn}) => {
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.02 * i }}
                                             className="flex items-center gap-4 bg-gray-100 hover:bg-emerald-100 rounded-xl p-3 cursor-pointer shadow-sm transition-all duration-200"
+                                            onTap={() => {
+                                                setSearchOpen(false)
+                                                navigate(`/product/${p.id}`)
+                                            }}
                                         >
                                             <img
                                                 src={p.image_url}
@@ -212,7 +216,7 @@ const Header = ({isLoggedIn}) => {
                                     </motion.div>
                                 ))}
                                 {/* Profile Nav */}
-                                {isLoggedIn && (
+                                {isLoggedIn && ['Profile', 'Orders'].map((item, i) => (
                                     <motion.div
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -220,12 +224,12 @@ const Header = ({isLoggedIn}) => {
                                         className="text-lg font-medium text-gray-700 hover:text-emerald-600 cursor-pointer transition duration-300"
                                         onClick={() => {
                                             setDrawerOpen(false);
-                                            navigate(`/profile}`);
+                                            navigate(`/${item.toLowerCase()}`);
                                         }}
                                     >
-                                        Profile
+                                        {item}
                                     </motion.div>
-                                )}
+                                ))}
                             </nav>
 
                             {/* Logout Button */}

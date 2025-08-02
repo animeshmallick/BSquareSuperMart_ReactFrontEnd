@@ -9,6 +9,9 @@ import CategoryPage from "./pages/Category";
 import LoginPage from "./pages/Login";
 import ThankYouPage from "./pages/ThankYouPage";
 import ProductPage from "./pages/Product";
+import MyOrders from "./pages/MyOrders";
+import ProfilePage from "./pages/Profile";
+import AddressBook from "./pages/addressBook";
 
 export default function App() {
     useEffect(() => {
@@ -24,6 +27,9 @@ export default function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/thankyou/:purchaseId" element={<ThankYouPage />} />
                 <Route path="product/:productId" element={<ProductPage />} />
+                <Route path="orders" element={<MyOrders />} />
+                <Route path="profile" element={<ProfilePage />} />
+                <Route path="addressBook" element={<AddressBook />} />
             </Routes>
         </Router>
     );
