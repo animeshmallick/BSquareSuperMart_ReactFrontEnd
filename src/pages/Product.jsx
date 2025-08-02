@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const ProductPage = () => {
     const { productId } = useParams();
+    const [productID, setProductID] = useState(parseInt(productId));
     const [product, setProduct] = useState(null);
     const [cart, setCart] = useState(CartHelper.getStoredCart());
     const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ const ProductPage = () => {
         };
         validate();
 
-        axios.get(`https://api.qa.bsquaresupermart.in/product/${productId}`)
+        axios.get(`https://api.qa.bsquaresupermart.in/product/${productID}`)
             .then((res) => {
                 setProduct(res.data);
                 setLoading(false);
@@ -33,16 +34,16 @@ const ProductPage = () => {
                 console.error("Error fetching product:", err);
                 setLoading(false);
             });
-    }, [productId]);
+    }, [productID]);
 
-    const quantity = CartHelper.getQuantity(cart, productId);
+    const quantity = CartHelper.getQuantity(cart, productID);
     const addToCart = () => {
-        const updatedCart = CartHelper.addToCart(cart, productId);
+        const updatedCart = CartHelper.addToCart(cart, productID);
         setCart(updatedCart);
     };
 
     const updateQuantity = (delta) => {
-        const updatedCart = CartHelper.updateQuantity(cart, productId, delta);
+        const updatedCart = CartHelper.updateQuantity(cart, productID, delta);
         setCart(updatedCart);
     };
 
@@ -168,7 +169,7 @@ const ProductPage = () => {
                             <br />
                             <strong>Category:</strong> {product.category || "N/A"}
                             <br />
-                            <strong>Product ID:</strong> {product.productId}
+                            <strong>Product ID:</strong> {product.productID}
                         </div>
                     </motion.div>
                 </div>
@@ -177,7 +178,7 @@ const ProductPage = () => {
             <CartFooter
                 cart={cart}
                 getTotalItems={() => CartHelper.getTotalItems(cart)}
-                getTotalPrice={() => CartHelper.getTotalPrice(cart, { [productId]: product })}
+                getTotalPrice={() => CartHelper.getTotalPrice(cart, { [productID]: product })}
             />
 
             <Footer />
