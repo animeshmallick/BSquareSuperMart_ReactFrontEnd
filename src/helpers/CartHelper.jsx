@@ -1,4 +1,5 @@
 // src/helpers/CartHelper.js
+import ProductHelper from "./ProductHelper";
 
 class CartHelper {
     getStoredCart() {
@@ -26,11 +27,13 @@ class CartHelper {
     }
 
     updateQuantity(cart, productId, delta) {
-        const updatedCart = cart.map((item) =>
-            item.ProductID === productId
-                ? { ...item, Quantity: item.Quantity + delta }
-                : item
-        ).filter((item) => item.Quantity > 0);
+        const updatedCart = cart
+            .map((item) =>
+                item.ProductID === productId
+                    ? { ...item, Quantity: item.Quantity + delta }
+                    : item
+            )
+            .filter((item) => item.Quantity > 0);
 
         this.saveCart(updatedCart);
         return updatedCart;
@@ -40,16 +43,33 @@ class CartHelper {
         return cart.reduce((acc, item) => acc + item.Quantity, 0);
     }
 
-    getTotalPrice(cart, allProducts) {
+    async getTotalPrice() {
         try {
-            return cart.reduce((acc, item) => {
-                const product = allProducts.find(p => p.id === item.ProductID);
-                return acc + (product?.selling_price || 0) * item.Quantity;
-            }, 0);
-        }catch (err){
-            return "---"
+            const allProducts = await ProductHelper.getAllProducts();
+            const cart = this.getStoredCart();
+
+            if (!Array.isArray(cart) || !Array.isArray(allProducts)) return 0;
+
+            const productMap = new Map();
+            for (const product of allProducts) {
+                if (product?.id != null) {
+                    productMap.set(product.id, product);
+                }
+            }
+            let total = 0;
+            for (const item of cart) {
+                const product = productMap.get(item.ProductID);
+                const price = Number(product?.selling_price || 0);
+                const quantity = Number(item.Quantity || 0);
+                total += price * quantity;
+            }
+
+            return total;
+        } catch (err) {
+            console.error("Error calculating total price:", err);
+            return 0;
         }
     }
-
 }
+
 export default new CartHelper();

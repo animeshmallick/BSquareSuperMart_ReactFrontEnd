@@ -1,10 +1,21 @@
-// components/CartFooter.jsx
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import CartHelper from "../helpers/CartHelper";
 
-const CartFooter = ({ cart, getTotalItems, getTotalPrice }) => {
+const CartFooter = () => {
     const navigate = useNavigate();
+    const cart = CartHelper.getStoredCart();
+
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    useEffect(() => {
+        const loadTotal = async () => {
+            const price = await CartHelper.getTotalPrice();
+            setTotalPrice(price);
+        };
+        loadTotal();
+    }, [cart]);
 
     if (cart.length === 0) return null;
 
@@ -23,8 +34,8 @@ const CartFooter = ({ cart, getTotalItems, getTotalPrice }) => {
                     <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 7M7 13l-2 5m14-5l2 5m-12 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm10 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
                 </svg>
                 <div className="flex flex-col text-sm leading-tight">
-                    <span className="font-medium">{getTotalItems()} item{getTotalItems() > 1 ? "s" : ""}</span>
-                    <span className="text-white/90 font-semibold">₹{getTotalPrice()}</span>
+                    <span className="font-medium">{cart.length} item{cart.length > 1 ? "s" : ""}</span>
+                    <span className="text-white/90 font-semibold">₹{totalPrice}</span>
                 </div>
             </div>
             <button

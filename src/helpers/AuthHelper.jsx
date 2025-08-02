@@ -1,44 +1,71 @@
+// src/helpers/AuthHelper.js
 import axios from "axios";
 
+const TOKEN_KEY = "authToken";
+const ADDRESS_KEY = "selectedAddress";
+const PAYMENT_KEY = "selectedPayment";
+
 class AuthHelper {
+    /**
+     * Removes session storage items on logout.
+     */
     logout() {
-        sessionStorage.removeItem("authToken");
-        sessionStorage.removeItem("selectedAddress");
-        sessionStorage.removeItem("selectedPayment")
+        sessionStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(ADDRESS_KEY);
+        sessionStorage.removeItem(PAYMENT_KEY);
     }
 
+    /**
+     * Gets the saved auth token.
+     * @returns {string|null}
+     */
+    getToken() {
+        return sessionStorage.getItem(TOKEN_KEY);
+    }
+
+    /**
+     * Saves a new auth token.
+     * @param {string} token
+     */
+    setToken(token) {
+        sessionStorage.setItem(TOKEN_KEY, token);
+    }
+
+    /**
+     * Validates the token with backend.
+     * @returns {Promise<boolean>}
+     */
     async isLoggedIn() {
+        const token = this.getToken();
+        if (!token) {
+            this.logout();
+            return false;
+        }
+
         try {
-            const token = sessionStorage.getItem("authToken") || "";
-            if (!token){
-                this.logout()
-                return false;
-            }
-            const res = await axios.post(
-                "https://api.qa.bsquaresupermart.in/isvalidToken",
+            const response = await axios.post(
+                `https://api.qa.bsquaresupermart.in/isvalidToken`,
                 {},
                 {
                     headers: {
-                        'x-authorization': `Bearer ${token}`
-                    }
+                        "x-authorization": `Bearer ${token}`,
+                    },
+                    timeout: 5000,
                 }
             );
 
-            if (res.data?.is_valid_user) {
+            if (response.status === 200 && response.data?.is_valid_user) {
                 return true;
             } else {
                 this.logout();
                 return false;
             }
         } catch (error) {
-            console.error("Token validation failed:", error);
+            console.error("Token validation failed:", error.message);
             this.logout();
             return false;
         }
     }
-
-    getToken(){
-        return sessionStorage.getItem("authToken");
-    }
 }
+
 export default new AuthHelper();

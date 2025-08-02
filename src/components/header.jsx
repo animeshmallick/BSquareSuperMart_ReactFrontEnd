@@ -1,45 +1,41 @@
-// src/components/Header.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Search } from "lucide-react";
-import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AuthHelper from "../helpers/AuthHelper";
+import ProductHelper from "../helpers/ProductHelper";
 
-const Header = ({isLoggedIn}) => {
+const Header = () => {
     const navigate = useNavigate();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [products, setProducts] = useState([]);
     const [filtered, setFiltered] = useState([]);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
     const drawerRef = useRef(null);
     const searchRef = useRef(null);
 
-    useEffect(() => {
-        if (searchTerm.length >= 2) {
-            if(products.length === 0) {
-                axios.get("https://api.qa.bsquaresupermart.in/getAllProducts")
-                    .then(res => {
-                        setProducts(res.data);
-                        setFiltered(
-                            res.data.filter(p =>
-                                p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                            )
-                        );
-                    })
-                    .catch(err => console.error("Search API error:", err));
-            }else{
-                setFiltered(
-                    products.filter(p =>
-                        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-                    )
-                );
-
-            }
-        } else {
+    const fetchAndFilter = async () => {
+        if (searchTerm.length < 2) {
             setFiltered([]);
+            return;
         }
+        ProductHelper.getAllProducts().then(products => {
+            setFiltered(products.filter(p =>
+                p.name.toLowerCase().includes(searchTerm.toLowerCase())
+            ));
+        });
+    };
+
+    useEffect(() => {
+        AuthHelper.isLoggedIn().then(setIsLoggedIn);
+        ProductHelper.getAllProducts().then(setProducts);
+    }, []);
+
+    useEffect(() => {
+        fetchAndFilter();
     }, [searchTerm]);
 
     useEffect(() => {
@@ -67,17 +63,36 @@ const Header = ({isLoggedIn}) => {
         exit: { rotate: -90, scale: 0.8, opacity: 0 },
     };
 
+    const navLinks = [
+        { label: "🏠 Home", path: "/" },
+        { label: "🛒 Cart", path: "/cart" },
+        { label: "ℹ️ About Us", path: "/about" },
+    ];
+
+    const loggedInLinks = [
+        { label: "👤 Profile", path: "/profile" },
+        { label: "📦 Orders", path: "/orders" },
+    ];
+
     return (
         <header className="bg-emerald-600 text-white p-4 sticky top-0 z-50 shadow-xl">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
-                <div className="text-2xl font-bold" onClick={() => navigate(`/`)}>BSquare SuperMart</div>
+                <div
+                    className="text-2xl font-bold cursor-pointer"
+                    onClick={() => navigate("/")}
+                >
+                    BSquare SuperMart
+                </div>
                 <div className="flex items-center gap-4">
                     <Search
                         className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
                         onClick={() => setSearchOpen(true)}
                     />
                     {isLoggedIn && (
-                        <User className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform" />
+                        <User
+                            className="w-6 h-6 cursor-pointer hover:scale-110 transition-transform"
+                            onClick={() => navigate("/profile")}
+                        />
                     )}
                     <Menu
                         className="w-7 h-7 cursor-pointer md:hidden"
@@ -118,9 +133,9 @@ const Header = ({isLoggedIn}) => {
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: 0.02 * i }}
                                             className="flex items-center gap-4 bg-gray-100 hover:bg-emerald-100 rounded-xl p-3 cursor-pointer shadow-sm transition-all duration-200"
-                                            onTap={() => {
-                                                setSearchOpen(false)
-                                                navigate(`/product/${p.id}`)
+                                            onClick={() => {
+                                                setSearchOpen(false);
+                                                navigate(`/product/${p.id}`);
                                             }}
                                         >
                                             <img
@@ -135,7 +150,11 @@ const Header = ({isLoggedIn}) => {
                                         </motion.div>
                                     ))
                                 ) : (
-                                    <p className="text-center text-gray-500">Type at least 2 characters to search</p>
+                                    <p className="text-center text-gray-500">
+                                        {searchTerm.length < 2
+                                            ? "Type at least 2 characters to search"
+                                            : "No matching products found"}
+                                    </p>
                                 )}
                             </div>
                             <motion.div
@@ -171,7 +190,6 @@ const Header = ({isLoggedIn}) => {
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             className="w-72 sm:w-80 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 p-6 rounded-tr-3xl rounded-br-3xl shadow-2xl relative"
                         >
-                            {/* Close Button */}
                             <motion.div
                                 variants={closeButtonVariants}
                                 initial="initial"
@@ -186,53 +204,38 @@ const Header = ({isLoggedIn}) => {
                                 />
                             </motion.div>
 
-                            {/* Login Button */}
                             {!isLoggedIn && (
                                 <motion.button
                                     whileHover={{ scale: 1.04 }}
                                     whileTap={{ scale: 0.98 }}
-                                    onClick={() => navigate("/login")}
+                                    onClick={() => {
+                                        setDrawerOpen(false);
+                                        navigate("/login");
+                                    }}
                                     className="mt-8 w-full bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded-xl font-medium shadow-md transition-all duration-300"
                                 >
                                     🔐 Login to Proceed
                                 </motion.button>
                             )}
 
-                            {/* Navigation Links */}
                             <nav className="mt-10 space-y-5">
-                                {['🏠 Home', '🛒 Cart', 'ℹ️ About Us'].map((item, i) => (
+                                {[...navLinks, ...(isLoggedIn ? loggedInLinks : [])].map((link, i) => (
                                     <motion.div
-                                        key={item}
+                                        key={link.label}
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: 0.05 * i }}
                                         className="text-lg font-medium text-gray-700 hover:text-emerald-600 cursor-pointer transition duration-300"
                                         onClick={() => {
                                             setDrawerOpen(false);
-                                            navigate(`/${item.split(' ')[1].toLowerCase()}`);
+                                            navigate(link.path);
                                         }}
                                     >
-                                        {item}
-                                    </motion.div>
-                                ))}
-                                {/* Profile Nav */}
-                                {isLoggedIn && ['Profile', 'Orders'].map((item, i) => (
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.05 * 4 }}
-                                        className="text-lg font-medium text-gray-700 hover:text-emerald-600 cursor-pointer transition duration-300"
-                                        onClick={() => {
-                                            setDrawerOpen(false);
-                                            navigate(`/${item.toLowerCase()}`);
-                                        }}
-                                    >
-                                        {item}
+                                        {link.label}
                                     </motion.div>
                                 ))}
                             </nav>
 
-                            {/* Logout Button */}
                             {isLoggedIn && (
                                 <motion.button
                                     whileHover={{ scale: 1.04 }}
@@ -249,7 +252,6 @@ const Header = ({isLoggedIn}) => {
                             )}
                         </motion.div>
                     </motion.div>
-
                 )}
             </AnimatePresence>
         </header>
