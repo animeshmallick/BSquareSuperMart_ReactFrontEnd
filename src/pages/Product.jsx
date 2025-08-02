@@ -22,7 +22,7 @@ const ProductPage = () => {
         };
         validate();
 
-        axios.get(`https://qa.api.bsquaresupermart.in/product/${productId}`)
+        axios.get(`https://api.qa.bsquaresupermart.in/product/${productId}`)
             .then((res) => {
                 setProduct(res.data);
                 setLoading(false);

@@ -15,7 +15,7 @@ class AuthHelper {
                 return false;
             }
             const res = await axios.post(
-                "https://qa.api.bsquaresupermart.in/isvalidToken",
+                "https://api.qa.bsquaresupermart.in/isvalidToken",
                 {},
                 {
                     headers: {

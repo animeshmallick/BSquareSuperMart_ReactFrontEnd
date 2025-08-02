@@ -32,7 +32,7 @@ const LoginPage = () => {
         setIsLoading(true);
 
         try {
-            const res = await axios.post("https://qa.api.bsquaresupermart.in/login", {
+            const res = await axios.post("https://api.qa.bsquaresupermart.in/login", {
                 phone,
                 password,
             });

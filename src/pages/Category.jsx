@@ -28,7 +28,7 @@ const CategoryPage = () => {
         };
         validate();
 
-        axios.get(`https://qa.api.bsquaresupermart.in/category/${categoryName}`)
+        axios.get(`https://api.qa.bsquaresupermart.in/category/${categoryName}`)
             .then((res) => {
                 const data = res.data || {};
                 setCategoryData(data);
@@ -41,7 +41,7 @@ const CategoryPage = () => {
                 setLoading(false);
             });
 
-        axios.get(`https://qa.api.bsquaresupermart.in/getAllProducts`)
+        axios.get(`https://api.qa.bsquaresupermart.in/getAllProducts`)
             .then((res) => setAllProducts(res.data))
             .catch((err) => {
                 console.log("Failed to fetch all products from server");

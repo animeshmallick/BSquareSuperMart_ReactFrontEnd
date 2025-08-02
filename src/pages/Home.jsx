@@ -23,7 +23,7 @@ const CategoriesPage = () => {
             setIsLoggedIn(loggedIn);
         };
         validate();
-        axios.get("https://qa.api.bsquaresupermart.in/categories")
+        axios.get("https://api.qa.bsquaresupermart.in/categories")
             .then((res) => {
                 setCategoriesData(res.data || {});
                 setLoading(false);
@@ -32,7 +32,7 @@ const CategoriesPage = () => {
                 console.error("Error fetching categories:", err);
                 setLoading(false);
             });
-        axios.get(`https://qa.api.bsquaresupermart.in/getAllProducts`)
+        axios.get(`https://api.qa.bsquaresupermart.in/getAllProducts`)
             .then((res) => {
                 const data = res.data;
                 setAllProducts(data);

@@ -59,7 +59,7 @@ const Checkout = () => {
 
         try {
             const token = AuthHelper.getToken();
-            const { data: purchaseRes } = await axios.get("https://qa.api.bsquaresupermart.in/getPurchaseID", {
+            const { data: purchaseRes } = await axios.get("https://api.qa.bsquaresupermart.in/getPurchaseID", {
                 headers: {
                     "x-authorization": `Bearer ${token}`,
                     "accept": "application/json"
@@ -78,7 +78,7 @@ const Checkout = () => {
             };
 
             const response = await axios.post(
-                "https://qa.api.bsquaresupermart.in/placeOrder",
+                "https://api.qa.bsquaresupermart.in/placeOrder",
                 payload,
                 {
                     headers: {
@@ -112,7 +112,7 @@ const Checkout = () => {
 
         CartHelper.saveCart(cartToSave);
 
-        axios.post('https://qa.api.bsquaresupermart.in/cart', cartToSave, {
+        axios.post('https://api.qa.bsquaresupermart.in/cart', cartToSave, {
             headers: {
                 'x-authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -139,18 +139,18 @@ const Checkout = () => {
 
         const token = AuthHelper.getToken();
 
-        axios.get('https://qa.api.bsquaresupermart.in/getUserAddresses', {
+        axios.get('https://api.qa.bsquaresupermart.in/getUserAddresses', {
             headers: { 'x-authorization': `Bearer ${token}` }
         }).then((res) => setAddresses(res.data.userAddress));
 
-        axios.get('https://qa.api.bsquaresupermart.in/getPaymentMethod', {
+        axios.get('https://api.qa.bsquaresupermart.in/getPaymentMethod', {
             headers: { 'x-authorization': `Bearer ${token}` }
         }).then((res) => setPayments(res.data));
 
         const savedCart = localStorage.getItem('cart');
         if (savedCart) {
             const cartItems = JSON.parse(savedCart);
-            axios.post('https://qa.api.bsquaresupermart.in/cart', cartItems, {
+            axios.post('https://api.qa.bsquaresupermart.in/cart', cartItems, {
                 headers: {
                     'x-authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

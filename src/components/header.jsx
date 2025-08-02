@@ -19,7 +19,7 @@ const Header = ({isLoggedIn}) => {
     useEffect(() => {
         if (searchTerm.length >= 2) {
             if(products.length === 0) {
-                axios.get("https://qa.api.bsquaresupermart.in/getAllProducts")
+                axios.get("https://api.qa.bsquaresupermart.in/getAllProducts")
                     .then(res => {
                         setProducts(res.data);
                         setFiltered(
