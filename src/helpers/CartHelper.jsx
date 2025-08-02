@@ -64,7 +64,7 @@ class CartHelper {
                 total += price * quantity;
             }
 
-            return total;
+            return parseFloat(total.toFixed(2));
         } catch (err) {
             console.error("Error calculating total price:", err);
             return 0;

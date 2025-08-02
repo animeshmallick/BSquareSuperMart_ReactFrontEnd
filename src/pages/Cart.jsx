@@ -17,8 +17,7 @@ const CartPage = () => {
     const refreshCart = (cartData = null) => {
         const currentCart = cartData || CartHelper.getStoredCart();
         if (currentCart.length > 0) {
-            axios
-                .post("https://api.qa.bsquaresupermart.in/cart", currentCart)
+            axios.post("https://api.qa.bsquaresupermart.in/cart", currentCart)
                 .then((res) => {
                     setProducts(res.data.products);
                     setBill(res.data.bill);
