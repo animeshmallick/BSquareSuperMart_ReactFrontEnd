@@ -4,7 +4,7 @@ import Tilt from "react-parallax-tilt";
 import CartHelper from "../helpers/CartHelper";
 import confetti from "canvas-confetti";
 
-const ProductQuantityContainer = ({ productId }) => {
+const ProductQuantityContainer = ({ productId, onUpdate }) => {
     const [productQuantity, setProductQuantity] = useState(CartHelper.getQuantity(productId) || 0);
 
     const vibrate = () => {
@@ -27,18 +27,24 @@ const ProductQuantityContainer = ({ productId }) => {
         setProductQuantity(1);
         vibrate();
         celebrate();
+        if(onUpdate)
+            onUpdate();
     };
 
     const handleIncrease = () => {
         CartHelper.updateQuantity(productId, 1);
         setProductQuantity(productQuantity + 1);
         vibrate();
+        if (onUpdate)
+            onUpdate();
     };
 
     const handleDecrease = () => {
         CartHelper.updateQuantity(productId, -1);
         setProductQuantity(productQuantity - 1);
         vibrate();
+        if (onUpdate)
+            onUpdate();
     };
 
     return (

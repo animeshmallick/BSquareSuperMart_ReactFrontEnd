@@ -5,11 +5,12 @@ import CartHelper from "../helpers/CartHelper";
 
 const CartFooter = () => {
     const navigate = useNavigate();
-    const cart = CartHelper.getStoredCart();
+    const [cart, setCart] = useState(CartHelper.getStoredCart());
 
     const [totalPrice, setTotalPrice] = useState(0);
 
     useEffect(() => {
+        setInterval(() => {setCart(CartHelper.getStoredCart());}, 500);
         const loadTotal = async () => {
             const price = await CartHelper.getTotalPrice();
             setTotalPrice(price);

@@ -15,6 +15,9 @@ class CartHelper {
         const item = this.getStoredCart().find((p) => p.ProductID === productId);
         return item ? item.Quantity : 0;
     }
+    removeProduct(id){
+        this.updateQuantity(id, this.getQuantity(id) * -1);
+    }
 
     addToCart(productId) {
         const cart = this.getStoredCart();
