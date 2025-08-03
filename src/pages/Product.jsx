@@ -8,44 +8,27 @@ import CartFooter from "../components/CartFooter";
 import CartHelper from "../helpers/CartHelper";
 import AuthHelper from "../helpers/AuthHelper";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ProductQuantityContainer from "../components/ProductQuantityContainer";
 
 const ProductPage = () => {
     const { productId } = useParams();
     const [productID, setProductID] = useState(parseInt(productId));
     const [product, setProduct] = useState(null);
-    const [cart, setCart] = useState(CartHelper.getStoredCart());
     const [loading, setLoading] = useState(true);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
-        const validate = async () => {
-            const loggedIn = await AuthHelper.isLoggedIn();
-            setIsLoggedIn(loggedIn);
-        };
-        validate();
-
         axios.get(`https://api.qa.bsquaresupermart.in/product/${productID}`)
             .then((res) => {
                 setProduct(res.data);
-                setLoading(false);
             })
             .catch((err) => {
                 console.error("Error fetching product:", err);
+            })
+            .finally(() => {
                 setLoading(false);
             });
     }, [productID]);
-
-    const quantity = CartHelper.getQuantity(cart, productID);
-    const addToCart = () => {
-        const updatedCart = CartHelper.addToCart(cart, productID);
-        setCart(updatedCart);
-    };
-
-    const updateQuantity = (delta) => {
-        const updatedCart = CartHelper.updateQuantity(cart, productID, delta);
-        setCart(updatedCart);
-    };
 
     if (loading || !product) {
         return (
@@ -68,19 +51,19 @@ const ProductPage = () => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-white to-emerald-50 min-h-screen flex flex-col">
-            <Header isLoggedIn={isLoggedIn} />
+        <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
+            <Header />
 
-            <main className="flex-grow px-4 sm:px-8 md:px-16 py-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <main className="flex-grow px-2 sm:px-6 md:px-12 py-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     {/* Image Carousel */}
                     <motion.div
-                        className="bg-white rounded-2xl shadow-md p-6 flex flex-col items-center justify-center relative"
+                        className="bg-white rounded-2xl shadow-md px-6 py-3 flex flex-col items-center justify-center relative"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <div className="relative w-full max-w-sm h-72 flex items-center justify-center">
+                        <div className="relative w-full max-w-sm h-36 flex items-center justify-center">
                             <AnimatePresence mode="wait">
                                 <motion.img
                                     key={currentImageIndex}
@@ -117,15 +100,16 @@ const ProductPage = () => {
 
                     {/* Product Info */}
                     <motion.div
-                        className="bg-white rounded-2xl shadow-md p-6 space-y-4"
+                        className="bg-white rounded-2xl shadow-md px-6 py-3 space-y-2"
                         initial={{ x: 100, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.6 }}
                     >
                         <h2 className="text-2xl font-bold text-gray-800">{product.productName}</h2>
-                        <p className="text-gray-600 text-sm">{product.productSize}</p>
+                        <span className="text-gray-600 text-sm">{product.productDescription}</span>
+                        <p className="text-gray-600 text-lg font-bold">Size: {product.productSize}</p>
 
-                        <div className="space-x-2 flex items-center">
+                        <div className="space-x-4 flex items-center">
                             <span className="text-emerald-600 font-bold text-xl">₹{product.productPrice}</span>
                             {discount > 0 && (
                                 <>
@@ -135,51 +119,21 @@ const ProductPage = () => {
                             )}
                         </div>
 
-                        {inStock ? (
-                            quantity === 0 ? (
-                                <button
-                                    onClick={addToCart}
-                                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all"
-                                >
-                                    ADD TO CART
-                                </button>
-                            ) : (
-                                <div className="flex items-center space-x-4">
-                                    <button
-                                        onClick={() => updateQuantity(-1)}
-                                        className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full font-bold text-lg"
-                                    >
-                                        −
-                                    </button>
-                                    <span className="text-gray-800 font-medium text-md">{quantity}</span>
-                                    <button
-                                        onClick={() => updateQuantity(1)}
-                                        className="w-8 h-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold text-lg"
-                                    >
-                                        +
-                                    </button>
-                                </div>
-                            )
-                        ) : (
-                            <div className="text-red-600 text-sm font-semibold">OUT OF STOCK</div>
-                        )}
+                        {inStock ? (<ProductQuantityContainer productId={productID} />) :
+                            (<div className="text-red-600 text-sm font-semibold">OUT OF STOCK</div>)}
 
-                        <div className="mt-4 text-sm text-gray-500">
+                        <div className="mt-6 text-sm text-gray-500">
                             <strong>Brand:</strong> {product.brand || "N/A"}
                             <br />
                             <strong>Category:</strong> {product.category || "N/A"}
                             <br />
-                            <strong>Product ID:</strong> {product.productID}
+                            <span>Product ID:</span> {product.productId}
                         </div>
                     </motion.div>
                 </div>
             </main>
 
-            <CartFooter
-                cart={cart}
-                getTotalItems={() => CartHelper.getTotalItems(cart)}
-                getTotalPrice={() => CartHelper.getTotalPrice(cart, { [productID]: product })}
-            />
+            <CartFooter />
 
             <Footer />
         </div>

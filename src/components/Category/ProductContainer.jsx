@@ -59,7 +59,7 @@ const ProductContainer = ({product}) => {
                 </div>
 
                 {inStock ? (
-                    <ProductQuantityContainer productId={product.productId} quantity={quantity} />
+                    <ProductQuantityContainer productId={product.productId} />
                 ) : (
                     <div className="mt-2 text-xs text-red-500 font-semibold">
                         Currently unavailable
