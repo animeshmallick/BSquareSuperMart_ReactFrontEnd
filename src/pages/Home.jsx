@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { motion } from "framer-motion";
-import { Fade } from "react-awesome-reveal";
 
 import Header from "../components/header";
 import Footer from "../components/footer";
 import CartFooter from "../components/CartFooter";
 import CategoryHolder from "../components/CategoryHolder";
 import LoadingSkeleton from "../components/Loading/LoadingSkeleton";
+import PageTitle from "../components/PageTitle";
 
 const CategoriesPage = () => {
-    const navigate = useNavigate();
     const [categoriesData, setCategoriesData] = useState({});
     const [loading, setLoading] = useState(true);
     const fetchCategories = async () => {
@@ -42,17 +39,8 @@ const CategoriesPage = () => {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-
             <main className="flex-grow p-4 md:p-10 bg-gradient-to-b from-lime-50 via-green-50 to-white">
-                <motion.h1
-                    className="text-4xl font-extrabold text-center mb-14 text-emerald-700 drop-shadow-lg"
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    Explore Product Categories
-                </motion.h1>
-
+                <PageTitle title={"Explore Product Categories"} />
                 {loading ? (
                     <LoadingSkeleton count={6} variant={"card"} />
                 ) : (
@@ -63,10 +51,8 @@ const CategoriesPage = () => {
                             subCategories={subCategories}
                         />
                     ))
-
                 )}
             </main>
-
             <CartFooter />
             <Footer />
         </div>

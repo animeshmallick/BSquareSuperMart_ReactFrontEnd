@@ -11,23 +11,24 @@ class CartHelper {
         localStorage.setItem("cart", JSON.stringify(cart));
     }
 
-    getQuantity(cart, productId) {
-        const item = cart.find((p) => p.ProductID === productId);
+    getQuantity(productId) {
+        const item = this.getStoredCart().find((p) => p.ProductID === productId);
         return item ? item.Quantity : 0;
     }
 
-    addToCart(cart, productId) {
+    addToCart(productId) {
+        const cart = this.getStoredCart();
         const existing = cart.find((p) => p.ProductID === productId);
         const updatedCart = existing
-            ? this.updateQuantity(cart, productId, 1)
+            ? this.updateQuantity(productId, 1)
             : [...cart, { ProductID: productId, Quantity: 1 }];
 
         this.saveCart(updatedCart);
         return updatedCart;
     }
 
-    updateQuantity(cart, productId, delta) {
-        const updatedCart = cart
+    updateQuantity(productId, delta) {
+        const updatedCart = this.getStoredCart()
             .map((item) =>
                 item.ProductID === productId
                     ? { ...item, Quantity: item.Quantity + delta }
@@ -39,8 +40,8 @@ class CartHelper {
         return updatedCart;
     }
 
-    getTotalItems(cart) {
-        return cart.reduce((acc, item) => acc + item.Quantity, 0);
+    getTotalItems() {
+        return this.getStoredCart().reduce((acc, item) => acc + item.Quantity, 0);
     }
 
     async getTotalPrice() {
