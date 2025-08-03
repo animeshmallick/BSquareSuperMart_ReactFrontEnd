@@ -26,7 +26,7 @@ const CartFooter = () => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
             transition={{ type: "spring", stiffness: 160, damping: 18 }}
-            className="fixed bottom-12 ml-[10%] transform -translate-x-1/2 z-50 w-[80%] sm:w-[90%] md:w-[70%] max-w-md
+            className="fixed bottom-6 ml-[10%] transform -translate-x-1/2 z-50 w-[80%] sm:w-[90%] md:w-[70%] max-w-md
                bg-emerald-600 text-white rounded-2xl px-4 py-3 shadow-xl flex items-center justify-between"
         >
             <div className="flex items-center gap-2">
