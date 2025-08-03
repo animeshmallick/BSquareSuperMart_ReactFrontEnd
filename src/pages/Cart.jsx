@@ -12,6 +12,7 @@ import ProductQuantityContainer from "../components/ProductQuantityContainer";
 import ContinueShopping from "../components/buttons/ContinueShopping";
 import ProceedToCheckout from "../components/buttons/ProceedToCheckout";
 import CartLogin from "../components/buttons/CartLogin";
+import ClearCart from "../components/buttons/ClearCart";
 
 const CartPage = () => {
     const navigate = useNavigate();
@@ -166,6 +167,7 @@ const CartPage = () => {
                                     )}
 
                                     <ContinueShopping />
+                                    <ClearCart onClear={refreshCart} />
                                 </motion.div>
                             </div>
 

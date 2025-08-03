@@ -6,6 +6,9 @@ class CartHelper {
         const stored = localStorage.getItem("cart");
         return stored ? JSON.parse(stored) : [];
     }
+    clearCart(){
+        localStorage.removeItem("cart");
+    }
 
     saveCart(cart) {
         localStorage.setItem("cart", JSON.stringify(cart));
