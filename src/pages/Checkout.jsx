@@ -9,7 +9,8 @@ import Header from "../components/header";
 import Footer from "../components/footer";
 import CartSummary from "../components/checkout/CartSummary";
 import CartHelper from "../helpers/CartHelper";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import PageTitle from "../components/PageTitle";
 
 const steps = ['Address', 'Payment', 'Review'];
 
@@ -41,7 +42,20 @@ const Checkout = () => {
         return saved ? JSON.parse(saved) : null;
     });
 
-    const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
+    const nextStep = () => {
+        if (step === 0 && selectedAddress?.address_id === 'pickup_store') {
+            const payAtStore = payments.find((m) => m.name === "Cash on Delivery");
+            if (payAtStore) {
+                const renamed = { ...payAtStore, name: "Pay at Store" };
+                setSelectedPayment(renamed);
+                sessionStorage.setItem('selectedPayment', JSON.stringify(renamed));
+            }
+            setStep(2); // Skip to Review
+        } else {
+            setStep((prev) => Math.min(prev + 1, steps.length - 1));
+        }
+    };
+
     const prevStep = () => {
         if (step === 2) {
             sessionStorage.removeItem('selectedPayment');
@@ -65,6 +79,7 @@ const Checkout = () => {
                     "accept": "application/json"
                 }
             });
+
             const purchaseId = purchaseRes.purchaseID;
 
             const payload = {
@@ -133,15 +148,17 @@ const Checkout = () => {
             setIsLoggedIn(loggedIn);
             if (!loggedIn) navigate("/login?source=checkout");
         };
+
         validate();
-        if(cartData.products.length === 0)
+
+        if (cartData.products.length === 0)
             navigate("/cart");
 
         const token = AuthHelper.getToken();
 
         axios.get('https://api.qa.bsquaresupermart.in/getUserAddresses', {
             headers: { 'x-authorization': `Bearer ${token}` }
-        }).then((res) => setAddresses(res.data.userAddress));
+        }).then((res) => setAddresses([res.data.storeAddress, ...res.data.userAddress]));
 
         axios.get('https://api.qa.bsquaresupermart.in/getPaymentMethod', {
             headers: { 'x-authorization': `Bearer ${token}` }
@@ -213,25 +230,26 @@ const Checkout = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 via-white to-emerald-50">
-            <Header isLoggedIn={isLoggedIn}/>
-            <main className="flex-grow px-3 py-3 justify-center items-start">
-                <h2 className="text-3xl font-bold text-center text-emerald-600 m-2">
-                    🛒 Checkout
-                </h2>
+        <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
+            <Header />
+            <main className="flex-grow px-2 sm:px-6 md:px-12 py-3">
+                <PageTitle title={"🛒 Checkout"} size={"small"} />
                 <CartSummary
                     products={cartData.products}
                     bill={cartData.bill}
                     onUpdate={updateCart}
                 />
-                <div className="p-5 flex justify-between mb-6">
+
+                <div className="p-5 pb-2 pt-1 flex justify-between">
                     {steps.map((label, i) => (
                         <motion.div
                             key={label}
                             whileHover={{ scale: i < step ? 1.05 : 1 }}
                             whileTap={{ scale: 0.95 }}
                             className={`flex-1 text-center cursor-pointer font-medium pb-2 border-b-4 transition-all duration-300 ${
-                                step === i ? 'border-green-500 text-green-600' : 'border-gray-200 text-gray-400'
+                                step === i
+                                    ? 'border-green-500 text-green-600'
+                                    : 'border-gray-200 text-gray-400'
                             }`}
                             onClick={() => {
                                 if (i < step) {

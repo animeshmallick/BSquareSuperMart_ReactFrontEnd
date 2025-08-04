@@ -5,20 +5,25 @@ import BottomNavigation from "./BottomNavigation";
 const AddressSelector = ({ addresses, selected, onSelect, onNext, placeOrder }) => {
     return (
         <div className="pl-5 pr-5">
-            <h2 className="text-2xl font-semibold mb-4">📍 Select Delivery Address</h2>
+            <h2 className="text-2xl font-semibold mb-2">📍 Select Delivery Address</h2>
             <Fade cascade>
-                <div className="grid gap-4">
+                <div className="grid gap-2">
                     {addresses.map((addr) => (
                         <div
                             key={addr.address_id}
                             onClick={() => onSelect(addr)}
-                            className={`p-4 rounded-xl border shadow-sm cursor-pointer transition-all duration-200 ${
+                            className={`pl-4 p-1 rounded-xl border shadow-sm cursor-pointer transition-all duration-200 ${
                                 selected?.address_id === addr.address_id
                                     ? 'border-green-500 bg-green-50 scale-[1.02]'
                                     : 'hover:bg-gray-100'
-                            }`}
+                            } ${addr.address_id === 'pickup_store' ? 'bg-yellow-50 hover:bg-yellow-100' : ''}`}
                         >
-                            <p>{addr.addr_line1}, {addr.addr_line2}</p>
+                            <p className="text-m font-semibold">
+                                {addr.addr_line1}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                {addr.addr_line2}
+                            </p>
                         </div>
                     ))}
                 </div>

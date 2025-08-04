@@ -4,6 +4,8 @@ import axios from "axios";
 const TOKEN_KEY = "authToken";
 const ADDRESS_KEY = "selectedAddress";
 const PAYMENT_KEY = "selectedPayment";
+const ALL_PRODUCT_KEY = "allProducts";
+const ALL_PRODUCT_TIMESTAMP_KEY = "allProducts_timestamp";
 
 class AuthHelper {
     /**
@@ -13,6 +15,8 @@ class AuthHelper {
         sessionStorage.removeItem(TOKEN_KEY);
         sessionStorage.removeItem(ADDRESS_KEY);
         sessionStorage.removeItem(PAYMENT_KEY);
+        sessionStorage.removeItem(ALL_PRODUCT_KEY);
+        sessionStorage.removeItem(ALL_PRODUCT_TIMESTAMP_KEY);
     }
 
     /**
