@@ -29,13 +29,13 @@ const ThankYou = () => {
             const token = sessionStorage.getItem("authToken");
             const response = await axios.get(
                 `https://api.qa.bsquaresupermart.in/getPurchaseDoc/${purchaseId}`,
-                {
-                    headers: {
-                        accept: "application/json",
+            {
+                headers: {
+                    accept: "application/json",
                         "x-authorization": `Bearer ${token}`,
-                    },
-                }
-            );
+                },
+            }
+        );
             setPurchaseDoc(response.data);
         } catch (err) {
             setError("Unable to load your order. Please try again.");
@@ -117,7 +117,7 @@ const ThankYou = () => {
                                 <div className="text-m">
                                     <div className="font-medium">{order.product.name}</div>
                                     <div className="text-m text-gray-500">
-                                        {order.quantity} × ₹{order.product.selling_price.toFixed(2)}
+                                        {order.quantity} × ₹
                                     </div>
                                 </div>
                             </motion.div>

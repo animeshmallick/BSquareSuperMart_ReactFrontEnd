@@ -7,10 +7,12 @@ import CartFooter from "../components/CartFooter";
 import CategoryHolder from "../components/CategoryHolder";
 import LoadingSkeleton from "../components/Loading/LoadingSkeleton";
 import PageTitle from "../components/PageTitle";
+import CartHelper from "../helpers/CartHelper";
 
 const CategoriesPage = () => {
     const [categoriesData, setCategoriesData] = useState({});
     const [loading, setLoading] = useState(true);
+    const [cart, updateCart] = useState(CartHelper.getStoredCart);
     const fetchCategories = async () => {
         try {
             const [categoriesRes] = await Promise.all([

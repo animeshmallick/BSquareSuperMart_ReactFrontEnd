@@ -22,29 +22,32 @@ const ProductQuantityContainer = ({ productId, onUpdate }) => {
         });
     };
 
-    const handleAdd = () => {
+    const handleAdd = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         CartHelper.addToCart(productId);
         setProductQuantity(1);
         vibrate();
         celebrate();
-        if(onUpdate)
-            onUpdate();
+        onUpdate?.();
     };
 
-    const handleIncrease = () => {
+    const handleIncrease = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         CartHelper.updateQuantity(productId, 1);
         setProductQuantity(productQuantity + 1);
         vibrate();
-        if (onUpdate)
-            onUpdate();
+        onUpdate?.();
     };
 
-    const handleDecrease = () => {
+    const handleDecrease = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
         CartHelper.updateQuantity(productId, -1);
         setProductQuantity(productQuantity - 1);
         vibrate();
-        if (onUpdate)
-            onUpdate();
+        onUpdate?.();
     };
 
     return (
@@ -57,6 +60,7 @@ const ProductQuantityContainer = ({ productId, onUpdate }) => {
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                     className="mt-2"
+                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
                 >
                     <Tilt
                         glareEnable={true}
@@ -87,6 +91,7 @@ const ProductQuantityContainer = ({ productId, onUpdate }) => {
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
                     className="w-fit flex items-center space-x-1 mt-2 px-1 py-1 rounded-full bg-white shadow-xl ring-2 ring-emerald-200 backdrop-blur-md"
+                    onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
                 >
                     <motion.button
                         whileHover={{ scale: 1.15, rotate: -12 }}

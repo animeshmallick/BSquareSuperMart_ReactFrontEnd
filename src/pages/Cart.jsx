@@ -52,10 +52,15 @@ const CartPage = () => {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.4, delay: index * 0.1 }}
-                                onTap={() => navigate(`/product/${item.id}`)}
+                                onClick={(e) => {
+                                    if (!e.defaultPrevented) {
+                                        navigate(`/product/${item.id}`);
+                                    }
+                                }}
                                 className="bg-white rounded-xl shadow-md p-1 flex items-center gap-2"
                             >
-                                <img
+
+                            <img
                                     src={item.image_url}
                                     alt={item.name}
                                     className="w-20 h-20 object-cover rounded-lg"
@@ -75,10 +80,16 @@ const CartPage = () => {
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => {CartHelper.removeProduct(item.id);refreshCart()}}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            CartHelper.removeProduct(item.id);
+                                            refreshCart();
+                                        }}
                                         className="w-fit group flex items-center text-sm text-red-500 hover:text-red-600 transition-colors font-medium mt-2"
                                     >
-                                        <Trash2 className="w-4 h-4 mr-1 transition-transform group-hover:-rotate-6" />
+
+                                    <Trash2 className="w-4 h-4 mr-1 transition-transform group-hover:-rotate-6" />
                                         <span className="underline-offset-4 group-hover:underline">Remove</span>
                                     </motion.button>
                                 </div>
