@@ -43,17 +43,7 @@ const Checkout = () => {
     });
 
     const nextStep = () => {
-        if (step === 0 && selectedAddress?.address_id === 'pickup_store') {
-            const payAtStore = payments.find((m) => m.name === "Cash on Delivery");
-            if (payAtStore) {
-                const renamed = { ...payAtStore, name: "Pay at Store" };
-                setSelectedPayment(renamed);
-                sessionStorage.setItem('selectedPayment', JSON.stringify(renamed));
-            }
-            setStep(2); // Skip to Review
-        } else {
-            setStep((prev) => Math.min(prev + 1, steps.length - 1));
-        }
+        setStep((prev) => Math.min(prev + 1, steps.length - 1));
     };
 
     const prevStep = () => {

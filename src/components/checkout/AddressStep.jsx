@@ -16,7 +16,7 @@ const AddressSelector = ({ addresses, selected, onSelect, onNext, placeOrder }) 
                                 selected?.address_id === addr.address_id
                                     ? 'border-green-500 bg-green-50 scale-[1.02]'
                                     : 'hover:bg-gray-100'
-                            } ${addr.address_id === 'pickup_store' ? 'bg-yellow-50 hover:bg-yellow-100' : ''}`}
+                            } ${addr.address_id === 'pickup_at_store' ? 'bg-yellow-50 hover:bg-yellow-100' : ''}`}
                         >
                             <p className="text-m font-semibold">
                                 {addr.addr_line1}
