@@ -46,22 +46,22 @@ const CartSummary = ({ products = [], bill = {}, onUpdate, showBillFlag = false 
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
                             className="grid grid-cols-12 items-center gap-3 p-1 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
-                            onTap={() => navigate(`/product/${item.id}`)}
                         >
-                            {/* Image (1/4) */}
-                            <motion.img
-                                src={item.image_url}
-                                alt={item.name}
-                                className="col-span-2 w-16 h-16 object-contain rounded-lg"
-                                whileHover={{ scale: 1.08, rotate: 1 }}
-                                transition={{ type: "spring", stiffness: 200 }}
-                            />
+                                {/* Image (1/4) */}
+                                <motion.img
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    className="col-span-2 w-16 h-16 object-contain rounded-lg"
+                                    whileHover={{ scale: 1.08, rotate: 1 }}
+                                    transition={{ type: "spring", stiffness: 200 }}
+                                    onTap={() => navigate(`/product/${item.id}`)}
+                                />
 
-                            {/* Details (2/4) */}
-                            <div className="col-span-7">
-                                <div className="font-semibold text-base text-gray-800">{item.name}</div>
-                                <div className="text-sm text-gray-500">{item.brand} • {item.size}</div>
-                            </div>
+                                {/* Details (2/4) */}
+                                <div className="col-span-7" onClick={() => navigate(`/product/${item.id}`)}>
+                                    <div className="font-semibold text-base text-gray-800">{item.name}</div>
+                                    <div className="text-sm text-gray-500">{item.brand} • {item.size}</div>
+                                </div>
 
                             {/* Actions (1/4) */}
                             <div className="col-span-3 flex flex-col justify-between h-full mb-2">
