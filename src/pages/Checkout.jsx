@@ -30,7 +30,9 @@ const Checkout = () => {
     const [loading, setLoading] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [error, setError] = useState("");
-    const [cartData, setCartData] = useState({ products: CartHelper.getStoredCart(), bill: null });
+
+    // Use a single state object for the complete cart data (products and bill)
+    const [cartData, setCartData] = useState({ products: [], bill: null });
 
     const [selectedAddress, setSelectedAddress] = useState(() => {
         const saved = sessionStorage.getItem('selectedAddress');
@@ -108,66 +110,66 @@ const Checkout = () => {
         }
     };
 
-    const updateCart = (newProducts) => {
-        const token = AuthHelper.getToken();
-        const cartToSave = newProducts.map(p => ({
-            ProductID: p.id,
-            Quantity: p.quantity
-        }));
-
-        CartHelper.saveCart(cartToSave);
-
-        axios.post('https://api.qa.bsquaresupermart.in/cart', cartToSave, {
-            headers: {
-                'x-authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+    // This useEffect hook is now the single source of truth for cart data.
+    // It runs on initial render and whenever the component is mounted.
+    useEffect(() => {
+        const fetchCartData = async () => {
+            const localCart = CartHelper.getStoredCart();
+            if (localCart && localCart.length > 0) {
+                try {
+                    const res = await axios.post("https://api.qa.bsquaresupermart.in/cart", localCart);
+                    setCartData(res.data);
+                } catch (err) {
+                    console.error("Error fetching cart data:", err);
+                    setCartData({ products: [], bill: null });
+                }
+            } else {
+                setCartData({ products: [], bill: null });
             }
-        }).then((res) => {
-            setCartData({
-                products: res.data.products,
-                bill: res.data.bill
-            });
-        }).catch((err) => {
-            console.error("Cart update failed", err);
-        });
+        };
+
+        fetchCartData();
+    }, []);
+    const updateCart = async () => {
+        const localCart = CartHelper.getStoredCart();
+        if (localCart && localCart.length > 0) {
+            try {
+                const res = await axios.post("https://api.qa.bsquaresupermart.in/cart", localCart);
+                setCartData(res.data);
+            } catch (err) {
+                console.error("Error fetching cart data:", err);
+                setCartData({ products: [], bill: null });
+            }
+        } else {
+            setCartData({ products: [], bill: null });
+        }
     };
 
     useEffect(() => {
         const validate = async () => {
             const loggedIn = await AuthHelper.isLoggedIn();
             setIsLoggedIn(loggedIn);
-            if (!loggedIn) navigate("/login?source=checkout");
+            if (!loggedIn) {
+                navigate("/login?source=checkout");
+                return;
+            }
+
+            // Fetch addresses and payments only after login validation
+            const token = AuthHelper.getToken();
+            axios.get('https://api.qa.bsquaresupermart.in/getUserAddresses', {
+                headers: { 'x-authorization': `Bearer ${token}` }
+            }).then((res) => setAddresses([res.data.storeAddress, ...res.data.userAddress]));
+
+            axios.get('https://api.qa.bsquaresupermart.in/getPaymentMethod', {
+                headers: { 'x-authorization': `Bearer ${token}` }
+            }).then((res) => setPayments(res.data));
         };
 
         validate();
 
-        if (cartData.products.length === 0)
+        // Check cart data after initial fetch
+        if (CartHelper.getStoredCart().length === 0) {
             navigate("/cart");
-
-        const token = AuthHelper.getToken();
-
-        axios.get('https://api.qa.bsquaresupermart.in/getUserAddresses', {
-            headers: { 'x-authorization': `Bearer ${token}` }
-        }).then((res) => setAddresses([res.data.storeAddress, ...res.data.userAddress]));
-
-        axios.get('https://api.qa.bsquaresupermart.in/getPaymentMethod', {
-            headers: { 'x-authorization': `Bearer ${token}` }
-        }).then((res) => setPayments(res.data));
-
-        const savedCart = localStorage.getItem('cart');
-        if (savedCart) {
-            const cartItems = JSON.parse(savedCart);
-            axios.post('https://api.qa.bsquaresupermart.in/cart', cartItems, {
-                headers: {
-                    'x-authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            }).then((res) => {
-                setCartData({
-                    products: res.data.products,
-                    bill: res.data.bill
-                });
-            }).catch((err) => console.error("Cart fetch error:", err));
         }
     }, []);
 
@@ -224,6 +226,7 @@ const Checkout = () => {
             <Header />
             <main className="flex-grow px-2 sm:px-6 md:px-12 py-3">
                 <PageTitle title={"🛒 Checkout"} size={"small"} />
+
                 <CartSummary
                     products={cartData.products}
                     bill={cartData.bill}

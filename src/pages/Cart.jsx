@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import CartHelper from "../helpers/CartHelper";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import AuthHelper from "../helpers/AuthHelper";
 import PageTitle from "../components/PageTitle";
-import ProductQuantityContainer from "../components/ProductQuantityContainer";
 import ContinueShopping from "../components/buttons/ContinueShopping";
 import ProceedToCheckout from "../components/buttons/ProceedToCheckout";
 import CartLogin from "../components/buttons/CartLogin";
@@ -16,52 +13,39 @@ import ClearCart from "../components/buttons/ClearCart";
 import CartSummary from "../components/checkout/CartSummary";
 
 const CartPage = () => {
-    const navigate = useNavigate();
+    const [localCart, setLocalCart] = useState(CartHelper.getStoredCart());
+    const [cart, setCart] = useState({ products: [], bill: null });
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [cart, setCart] = useState({});
-
-    const refreshCart = () => {
-        const currentCart = CartHelper.getStoredCart();
-        if (currentCart.length > 0) {
-            axios.post("https://api.qa.bsquaresupermart.in/cart", currentCart)
-                .then((res) => {setCart(res.data);})
-                .catch((err) => console.error(err));
-        }else{
-            setCart({products: [], bill: null});
-        }
-    };
-    const validate = async () => {
-        const loggedIn = await AuthHelper.isLoggedIn();
-        setIsLoggedIn(loggedIn);
-    };
-    const updateCart = (newProducts) => {
-        const token = AuthHelper.getToken();
-        const cartToSave = newProducts.map(p => ({
-            ProductID: p.id,
-            Quantity: p.quantity
-        }));
-
-        CartHelper.saveCart(cartToSave);
-
-        axios.post('https://api.qa.bsquaresupermart.in/cart', cartToSave, {
-            headers: {
-                'x-authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        }).then((res) => {
-            setCart({
-                products: res.data.products,
-                bill: res.data.bill
-            });
-        }).catch((err) => {
-            console.error("Cart update failed", err);
-        });
-    };
 
     useEffect(() => {
-        validate();
-        refreshCart();
+        const fetchCartData = async () => {
+            if (localCart && localCart.length > 0) {
+                try {
+                    const res = await axios.post("https://api.qa.bsquaresupermart.in/cart", localCart);
+                    setCart(res.data);
+                } catch (err) {
+                    console.error("Error fetching cart data:", err);
+                    setCart({ products: [], bill: null });
+                }
+            } else {
+                setCart({ products: [], bill: null });
+            }
+        };
+
+        fetchCartData();
+    }, [localCart]);
+
+    useEffect(() => {
+        const validateIsLoggedIn = async () => {
+            const loggedIn = await AuthHelper.isLoggedIn();
+            setIsLoggedIn(loggedIn);
+        };
+        validateIsLoggedIn();
     }, []);
+
+    const onUpdate = () => {
+        setLocalCart(CartHelper.getStoredCart());
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">
@@ -71,9 +55,10 @@ const CartPage = () => {
                 <CartSummary
                     products={cart.products}
                     bill={cart.bill}
-                    onUpdate={updateCart}
                     showBillFlag={true}
+                    onUpdate={onUpdate}
                 />
+
                 <div className="flex justify-center mt-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -86,9 +71,8 @@ const CartPage = () => {
                         ) : (
                             <ProceedToCheckout />
                         )}
-
                         <ContinueShopping />
-                        <ClearCart onClear={refreshCart} />
+                        <ClearCart onClear={onUpdate} />
                     </motion.div>
                 </div>
             </main>

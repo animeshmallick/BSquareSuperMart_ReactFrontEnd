@@ -3,35 +3,33 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, User, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AuthHelper from "../helpers/AuthHelper";
-import ProductHelper from "../helpers/ProductHelper";
+import {useProducts} from "../hooks/useProducts";
 
 const Header = () => {
     const navigate = useNavigate();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [products, setProducts] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     const drawerRef = useRef(null);
     const searchRef = useRef(null);
 
+    const {data: products, isLoading, error} = useProducts();
+
     const fetchAndFilter = async () => {
         if (searchTerm.length < 2) {
             setFiltered([]);
             return;
         }
-        ProductHelper.getAllProducts().then(products => {
-            setFiltered(products.filter(p =>
-                p.name.toLowerCase().includes(searchTerm.toLowerCase())
-            ));
-        });
+        setFiltered(products.filter(p =>
+            p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        ));
     };
 
     useEffect(() => {
         AuthHelper.isLoggedIn().then(setIsLoggedIn);
-        ProductHelper.getAllProducts().then(setProducts);
     }, []);
 
     useEffect(() => {

@@ -11,28 +11,26 @@ import Sidebar from "../components/Category/Sidebar";
 import ProductContainer from "../components/Category/ProductContainer";
 import LoadingSkeleton from "../components/Loading/LoadingSkeleton";
 import PageTitle from "../components/PageTitle";
+import {useProducts} from "../hooks/useProducts";
+import CategoryHelper from "../helpers/CategoryHelper";
 
 const CategoryPage = () => {
     const { categoryName } = useParams();
 
+    const { data: allProducts, isLoading, error } = useProducts();
+
     const [categoryData, setCategoryData] = useState({});
     const [selectedSubCategory, setSelectedSubCategory] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(isLoading);
 
     useEffect(() => {
-        axios.get(`https://api.qa.bsquaresupermart.in/category/${categoryName}`)
-            .then((res) => {
-                const data = res.data || {};
-                setCategoryData(data);
-                const firstSubCategory = Object.keys(data)[0];
-                setSelectedSubCategory(firstSubCategory);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Error fetching products:", err);
-                setLoading(false);
-            });
-    }, [categoryName]);
+        if(allProducts){
+            const categories = CategoryHelper.filterProductsByCategory(allProducts, categoryName);
+            setCategoryData(categories);
+            setSelectedSubCategory(Object.keys(categories)[0]);
+            setLoading(false);
+        }
+    }, [allProducts, categoryName]);
 
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-green-50 via-white to-emerald-50">

@@ -1,5 +1,4 @@
 // src/helpers/CartHelper.js
-import ProductHelper from "./ProductHelper";
 
 class CartHelper {
     getStoredCart() {
@@ -50,33 +49,29 @@ class CartHelper {
         return this.getStoredCart().reduce((acc, item) => acc + item.Quantity, 0);
     }
 
-    async getTotalPrice() {
+    getTotalPrice = (allProducts, cart) => {
         try {
-            const allProducts = await ProductHelper.getAllProducts();
-            const cart = this.getStoredCart();
-
-            if (!Array.isArray(cart) || !Array.isArray(allProducts)) return 0;
-
-            const productMap = new Map();
-            for (const product of allProducts) {
-                if (product?.id != null) {
-                    productMap.set(product.id, product);
-                }
+            if (!Array.isArray(cart) || !Array.isArray(allProducts)) {
+                return 0;
             }
-            let total = 0;
-            for (const item of cart) {
+
+            const productMap = new Map(
+                allProducts.map(product => [product.id, product])
+            );
+
+            const total = cart.reduce((acc, item) => {
                 const product = productMap.get(item.ProductID);
                 const price = Number(product?.selling_price || 0);
                 const quantity = Number(item.Quantity || 0);
-                total += price * quantity;
-            }
+                return acc + (price * quantity);
+            }, 0);
 
             return parseFloat(total.toFixed(2));
         } catch (err) {
             console.error("Error calculating total price:", err);
             return 0;
         }
-    }
+    };
 }
 
 export default new CartHelper();

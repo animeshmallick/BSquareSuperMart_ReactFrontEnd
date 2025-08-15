@@ -2,20 +2,18 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import CartHelper from "../helpers/CartHelper";
+import {useProducts} from "../hooks/useProducts";
 
 const CartFooter = () => {
     const navigate = useNavigate();
     const [cart, setCart] = useState(CartHelper.getStoredCart());
+    const { data: allProducts, isLoading, error } = useProducts();
 
     const [totalPrice, setTotalPrice] = useState(0);
 
     useEffect(() => {
         setInterval(() => {setCart(CartHelper.getStoredCart());}, 500);
-        const loadTotal = async () => {
-            const price = await CartHelper.getTotalPrice();
-            setTotalPrice(price);
-        };
-        loadTotal();
+        setTotalPrice(CartHelper.getTotalPrice(allProducts, cart));
     }, [cart]);
 
     if (cart.length === 0) return null;

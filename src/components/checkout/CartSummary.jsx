@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import CartHelper from "../../helpers/CartHelper";
 
-const CartSummary = ({ products = [], bill, onUpdate, showBillFlag = false }) => {
+const CartSummary = ({ products = [], bill = {}, onUpdate, showBillFlag = false }) => {
     const [showBill, setShowBill] = useState(showBillFlag);
 
     if (!products.length || !bill) return null;
-
-    const handleQuantityChange = (id, delta) => {
-        const updated = products.map(p =>
-            p.id === id ? { ...p, quantity: Math.max(1, p.quantity + delta) } : p
-        );
-        onUpdate(updated);
-    };
 
     const handleRemove = (id) => {
         const filtered = products.filter(p => p.id !== id);
@@ -71,7 +65,10 @@ const CartSummary = ({ products = [], bill, onUpdate, showBillFlag = false }) =>
                                 <div className="flex items-center justify-center gap-1">
                                     <motion.button
                                         whileTap={{ scale: 0.9 }}
-                                        onClick={() => handleQuantityChange(item.id, -1)}
+                                        onClick={() => {
+                                            CartHelper.updateQuantity(item.id, -1);
+                                            onUpdate()
+                                        }}
                                         className="bg-gray-200 hover:bg-gray-300 active:scale-95 rounded-lg px-2 py-1 text-lg shadow-inner"
                                     >
                                         −
@@ -79,7 +76,10 @@ const CartSummary = ({ products = [], bill, onUpdate, showBillFlag = false }) =>
                                     <span className="min-w-[24px] text-center font-medium">{item.quantity}</span>
                                     <motion.button
                                         whileTap={{ scale: 0.9 }}
-                                        onClick={() => handleQuantityChange(item.id, 1)}
+                                        onClick={() => {
+                                            CartHelper.updateQuantity(item.id, 1);
+                                            onUpdate()
+                                        }}
                                         className="bg-gray-200 hover:bg-gray-300 active:scale-95 rounded-lg px-2 py-1 text-lg shadow-inner"
                                     >
                                         +
