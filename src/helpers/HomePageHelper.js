@@ -13,7 +13,8 @@ export const getAllCategories = (products) => {
             (cat) => cat.category === category
         );
         if (!categoryExists)
-            result[category_header].push({category: category, image: `${category}.png`});
+            result[category_header].push({category: category,
+                image: `${category.replaceAll(' ','-')}.png`});
     });
     return result;
 };
