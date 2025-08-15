@@ -26,11 +26,8 @@ const CategoryHolder = ({ mainCategory, subCategories }) => {
                             }
                         }}
                     >
-                        <img
-                            src={`https://cdn.bsquaresupermart.in/images/categories/${encodeURIComponent(sub?.image || "default.png")}`}
-                            alt={sub?.category || "Category"}
-                            loading="lazy"
-                            className="h-20 w-20 mx-auto object-contain mb-3 transition-transform duration-300 group-hover:scale-110"
+                        <img src={sub?.image || "default.png"} alt={sub?.category || "Category"} loading="lazy"
+                             className="h-20 w-20 mx-auto object-contain mb-3 transition-transform duration-300 group-hover:scale-110"
                         />
                         <p className="text-sm font-medium text-gray-700 group-hover:text-emerald-700 transition-colors">
                             {sub?.category || "Subcategory"}

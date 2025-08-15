@@ -50,8 +50,8 @@ const CartSummary = ({ products = [], bill = {}, onUpdate, showBillFlag = false 
                         >
                             {/* Image (1/4) */}
                             <motion.img
-                                src={item.productImg}
-                                alt={item.productName}
+                                src={item.image_url}
+                                alt={item.name}
                                 className="col-span-2 w-16 h-16 object-contain rounded-lg"
                                 whileHover={{ scale: 1.08, rotate: 1 }}
                                 transition={{ type: "spring", stiffness: 200 }}
