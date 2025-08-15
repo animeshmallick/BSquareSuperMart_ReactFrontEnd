@@ -115,71 +115,80 @@ const Header = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex justify-center items-start pt-20 px-4"
+                        className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-md z-50 flex justify-center items-start pt-20 px-4"
                     >
-                            <motion.div
-                                ref={searchRef}
-                                initial={{ y: -50, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                exit={{ y: -50, opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-4 relative"
+                        <motion.div
+                            ref={searchRef}
+                            initial={{ y: -80, opacity: 0, scale: 0.9 }}
+                            animate={{ y: 0, opacity: 1, scale: 1 }}
+                            exit={{ y: -80, opacity: 0, scale: 0.9 }}
+                            transition={{ type: "spring", stiffness: 280, damping: 20 }}
+                            className="w-full max-w-xl bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-6 relative"
+                        >
+                            {/* Close Button on Top Center */}
+                            <motion.button
+                                variants={closeButtonVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3 }}
+                                className="absolute -top-14 left-1/2 transform -translate-x-1/2 p-3 rounded-full bg-white/70 backdrop-blur-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 shadow-lg"
+                                whileHover={{ scale: 1.2, rotate: 90 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setSearchOpen(false)}
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </motion.button>
+                            <div className="flex flex-col gap-4">
                                 <input
                                     type="text"
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                     placeholder="Search for products..."
-                                    className="w-full p-3 text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    className="w-full p-4 text-lg border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-inner bg-white/80 text-gray-800 placeholder-gray-400"
                                 />
-                                <div className="mt-4 max-h-80 overflow-y-auto space-y-2 scrollbar-thin scrollbar-thumb-emerald-400">
+                                <div className="max-h-80 overflow-y-auto space-y-3 scrollbar-thin scrollbar-thumb-emerald-300 scrollbar-track-transparent">
                                     {filtered.length > 0 ? (
                                         filtered.map((p, i) => (
                                             <motion.div
                                                 key={p.id}
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.02 * i }}
-                                                className="flex items-center gap-4 bg-gray-100 hover:bg-emerald-100 rounded-xl p-3 cursor-pointer shadow-sm transition-all duration-200"
+                                                initial={{ opacity: 0, y: -15 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: 0.02 * i, type: "spring", stiffness: 200, damping: 15 }}
+                                                className="flex items-center gap-4 bg-gray-50 hover:bg-emerald-100 rounded-xl p-3 cursor-pointer shadow-sm transition-all duration-200 ease-in-out"
+                                                whileHover={{ scale: 1.02, x: 5, boxShadow: "0 4px 15px rgba(0,0,0,0.1)" }}
+                                                whileTap={{ scale: 0.98 }}
                                                 onClick={() => {
                                                     setSearchOpen(false);
                                                     navigate(`/product/${p.id}`);
                                                 }}
                                             >
-                                                <img
-                                                    src={p.image_url}
-                                                    alt={p.name}
-                                                    className="h-12 w-12 object-cover rounded-lg shadow-md"
-                                                />
+                                                <div className="relative w-14 h-14 overflow-hidden rounded-lg shadow-md">
+                                                    <img
+                                                        src={p.image_url}
+                                                        alt={p.name}
+                                                        className="object-cover w-full h-full"
+                                                    />
+                                                </div>
                                                 <div>
-                                                    <div className="font-semibold text-gray-800">{p.name}</div>
-                                                    <div className="text-sm text-gray-600">₹{p.selling_price}</div>
+                                                    <div className="font-bold text-gray-800">{p.name}</div>
+                                                    <div className="text-md text-gray-600 font-medium">₹{p.selling_price}</div>
                                                 </div>
                                             </motion.div>
                                         ))
                                     ) : (
-                                        <p className="text-center text-gray-500">
+                                        <p className="text-center text-gray-500 py-6">
                                             {searchTerm.length < 2
-                                                ? "Type at least 2 characters to search"
+                                                ? "Start typing to search for products..."
                                                 : "No matching products found"}
                                         </p>
                                     )}
                                 </div>
-                                <motion.div
-                                    variants={closeButtonVariants}
-                                    initial="initial"
-                                    animate="animate"
-                                    exit="exit"
-                                    transition={{ duration: 0.4 }}
-                                    className="absolute top-4 right-4"
-                                >
-                                    <X
-                                        className="w-6 h-6 cursor-pointer text-gray-500 hover:text-gray-800 transition-all transform hover:scale-125 hover:rotate-90"
-                                        onClick={() => setSearchOpen(false)}
-                                    />
-                                </motion.div>
-                            </motion.div>
+                            </div>
                         </motion.div>
+                    </motion.div>
                 )}
 
                 {drawerOpen && (
