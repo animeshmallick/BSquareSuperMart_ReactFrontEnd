@@ -48,12 +48,12 @@ const ProfilePage = () => {
                     data-aos="zoom-in"
                 >
                     <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${profile.name || "User"}`}
+                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${profile.fname + profile.lname || "User"}`}
                         alt="avatar"
                         className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-indigo-100"
                     />
 
-                    <h2 className="text-2xl font-bold text-indigo-700">{profile.name || "Unknown User"}</h2>
+                    <h2 className="text-2xl font-bold text-indigo-700">{profile.fname + profile.lname || "Unknown User"}</h2>
                     <p className="text-gray-500 mt-1">{profile.phone || "No phone linked"}</p>
 
                     <div className="mt-6 space-y-3">

@@ -214,6 +214,7 @@ const Checkout = () => {
                         onBack={prevStep}
                         placeOrder={placeOrder}
                         loading={loading}
+                        amount={cartData.bill?.total_bill}
                     />
                 );
             default:
@@ -233,7 +234,7 @@ const Checkout = () => {
                     onUpdate={updateCart}
                 />
 
-                <div className="p-5 pb-2 pt-1 flex justify-between">
+                <div className="mt-3 p-5 pb-2 pt-1 flex justify-between">
                     {steps.map((label, i) => (
                         <motion.div
                             key={label}

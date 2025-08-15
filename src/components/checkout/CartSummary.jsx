@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import CartHelper from "../../helpers/CartHelper";
+import {useNavigate} from "react-router-dom";
 
 const CartSummary = ({ products = [], bill = {}, onUpdate, showBillFlag = false }) => {
+    const navigate = useNavigate();
     const [showBill, setShowBill] = useState(showBillFlag);
+
 
     if (!products.length || !bill) return null;
 
@@ -43,6 +46,7 @@ const CartSummary = ({ products = [], bill = {}, onUpdate, showBillFlag = false 
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
                             className="grid grid-cols-12 items-center gap-3 p-1 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+                            onTap={() => navigate(`/product/${item.id}`)}
                         >
                             {/* Image (1/4) */}
                             <motion.img

@@ -19,10 +19,13 @@ const AddressSelector = ({ addresses, selected, onSelect, onNext, placeOrder }) 
                             } ${addr.address_id === 'pickup_at_store' ? 'bg-yellow-50 hover:bg-yellow-100' : ''}`}
                         >
                             <p className="text-m font-semibold">
-                                {addr.addr_line1}
+                                {addr.addr_line1 + " "}
+                                <span className="text-sm text-gray-700">
+                                    {addr.addr_line2}
+                                </span>
                             </p>
-                            <p className="text-sm text-gray-600">
-                                {addr.addr_line2}
+                            <p className="text-sm text-gray-500">
+                                {addr.city + " " + addr.state + " " + addr.pincode}
                             </p>
                         </div>
                     ))}
